@@ -2,18 +2,15 @@ import pygame
 import random
 import psutil # Використання пам’яті всього процесу
 import os
+from res.constants import *
 
-WIDTH = 800
-HEIGHT = 600
-FPS = 30
-x = 400
-y = 300
-img = pygame.image.load("../src/images/stars_space_galaxy_117958_800x600.jpg")
-meteor = pygame.image.load("../src/images/meteorite3.png")
+# Load images
+img = pygame.image.load(BG_IMG)
+meteor = pygame.image.load(METEOR_IMG)
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('My game')
+pygame.display.set_caption(SCREEN_TITLE)
 pygame.mixer.init()
 running = True
 clock = pygame.time.Clock()
@@ -90,7 +87,7 @@ for _ in range(random.randint(15, 30)):
 
 while running:
     clock.tick(FPS)
-    print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f} MB")
+    # print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f} MB")
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
