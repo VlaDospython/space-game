@@ -1,8 +1,10 @@
 import pygame
 import random
-import psutil # Використання пам’яті всього процесу
+import psutil  # Використання пам’яті всього процесу
 import os
 from res.constants import *
+from res.player import Player
+from res.meteor import Meteor
 
 # Load images
 img = pygame.image.load(BG_IMG)
@@ -17,77 +19,23 @@ clock = pygame.time.Clock()
 mob_images = [meteor]
 
 
-class Meteor(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        size = random.randint(20, 50)
-        self.image = pygame.transform.scale(random.choice(mob_images), (size, size))
-        self.rect = self.image.get_rect()
-        self.image.get_rect()
-        self.rect.centerx = random.randint(0, WIDTH)
-        self.rect.top = -10
-        self.speedx = random.randint(-3, 3)
-        self.speedy = random.randint(1, 7)
-
-    def update(self):
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
-
-        # if self.rect.right >= WIDTH + 30 or self.rect.left <= -30 or self.rect.bottom >= HEIGHT + 30:
-        #     self.rect.centerx = random.randint(0, WIDTH)
-        #     self.rect.top = -10
-
-        if self.rect.top > HEIGHT:
-            self.rect.centerx = random.randint(0, WIDTH)
-            self.rect.top = -10
-            self.speedx = random.randint(-3, 3)
-            self.speedy = random.randint(4, 13)
-
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((25, 40))
-        self.image.fill((255, 0, 0))
-        self.rect = self.image.get_rect()
-        self.rect.centerx = WIDTH / 2
-        self.rect.bottom = HEIGHT - 10
-        self.speedx = 0
-        self.speedy = 0
-
-    def update(self):
-        self.speedx = 0
-        keystate = pygame.key.get_pressed()
-
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-
-        if keystate[pygame.K_LEFT]:
-            self.speedx = -10
-        if keystate[pygame.K_RIGHT]:
-            self.speedx = 10
-
-        self.rect.x += self.speedx
-
-
 all_sprites = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
 
 process = psutil.Process(os.getpid())
+total_memory_mb = psutil.virtual_memory().total / (1024 * 1024)
 
 meteors = pygame.sprite.Group()
 
 # **Додавання метеоритів у групу
 for _ in range(random.randint(15, 30)):
-    meteors.add(Meteor())
+    meteors.add(Meteor(mob_images))
 
 
 while running:
     clock.tick(FPS)
-    # print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f} MB")
+    print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
