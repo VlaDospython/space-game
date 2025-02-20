@@ -2,9 +2,9 @@ import pygame
 import random
 import psutil  # Використання пам’яті всього процесу
 import os
-from res.constants import *
-from res.player import Player
-from res.meteor import Meteor
+from src.constants import *
+from src.player import Player
+from src.meteor import Meteor
 
 # Load images
 img = pygame.image.load(BG_IMG)
