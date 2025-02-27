@@ -40,10 +40,31 @@ class PhotoImage(Strategy):
         return self.image
 
 
+class Heart(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.transform.scale(heart, (20, 20))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
+def spawn_hearts():
+    player_lives = player.lives
+    pos_x = 10
+    for j in range(player_lives):
+        pos_x += 20
+        heart = Heart(pos_x, 10)
+        hearts.append(heart)
+        if isinstance(heart, Heart):
+            all_sprites.add(heart)
+
+
 # Load images
 img = pygame.image.load(BG_IMG)
 meteor = pygame.image.load(METEOR_IMG)
 ship = pygame.image.load(SHIP)
+heart = pygame.image.load(HEART)
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -52,6 +73,7 @@ pygame.mixer.init()
 running = True
 clock = pygame.time.Clock()
 mob_images = [meteor]
+hearts = []
 
 c = Context()
 c.set_strategy(PhotoImage(player_image=ship))
@@ -59,6 +81,7 @@ c.set_strategy(PhotoImage(player_image=ship))
 all_sprites = pygame.sprite.Group()
 player = Player(context=c)
 all_sprites.add(player)
+all_sprites.add(hearts)
 
 process = psutil.Process(os.getpid())
 total_memory_mb = psutil.virtual_memory().total / (1024 * 1024)
@@ -84,6 +107,13 @@ while running:
     # Перевірка на зіткнення з метеорами
     hits = pygame.sprite.spritecollide(player, meteors, True)
     if hits:
+        player.lives -= 1
+        all_sprites.remove(hearts)
+        hearts = []
+        spawn_hearts()
+
+    # Перевірка кількості життів
+    if player.lives == 0:
         running = False
 
     # Оновлення стану ігрових об'єктів
@@ -91,6 +121,7 @@ while running:
     all_sprites.update()
     pygame.display.update()  # Оновлюємо весь екран
     Meteor.rotate_all()
+    spawn_hearts()
 
     # Рендеринг
     screen.fill((0, 0, 0))  # Заливка екрану чорним кольором
