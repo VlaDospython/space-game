@@ -81,15 +81,22 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    screen.fill((0, 0, 0))  # Заливка екрану чорним кольором
-    screen.blit(img, (0, 0))
+    # Перевірка на зіткнення з метеорами
+    hits = pygame.sprite.spritecollide(player, meteors, True)
+    if hits:
+        running = False
+
+    # Оновлення стану ігрових об'єктів
     meteors.update()
-    meteors.draw(screen)
     all_sprites.update()
-    all_sprites.draw(screen)
     pygame.display.update()  # Оновлюємо весь екран
     Meteor.rotate_all()
 
+    # Рендеринг
+    screen.fill((0, 0, 0))  # Заливка екрану чорним кольором
+    screen.blit(img, (0, 0))
+    meteors.draw(screen)
+    all_sprites.draw(screen)
 
 pygame.quit()
 
