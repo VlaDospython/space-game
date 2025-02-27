@@ -11,7 +11,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.bottom = HEIGHT - 10
         self.speedx = 0
         self.speedy = 0
-        self.lives = 3
+        self.lives = -1
 
     def update(self):
         self.speedx = 0
