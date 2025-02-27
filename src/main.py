@@ -31,6 +31,14 @@ class SimpleImage(Strategy):
         return self.image
 
 
+class PhotoImage(Strategy):
+    def __init__(self, player_image):
+        self.image = pygame.transform.scale(player_image, (38, 38))
+        self.image.set_colorkey(BLACK)
+
+    def get_surface(self):
+        return self.image
+
 
 # Load images
 img = pygame.image.load(BG_IMG)
@@ -44,9 +52,11 @@ running = True
 clock = pygame.time.Clock()
 mob_images = [meteor]
 
+c = Context()
+c.set_strategy(PhotoImage(player_image=meteor))
 
 all_sprites = pygame.sprite.Group()
-player = Player()
+player = Player(context=c)
 all_sprites.add(player)
 
 process = psutil.Process(os.getpid())
@@ -63,6 +73,7 @@ while running:
     clock.tick(FPS)
     print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
 
+
     if process.memory_info().rss / 1024 / 1024 > 100:
         running = False
 
@@ -77,6 +88,8 @@ while running:
     all_sprites.update()
     all_sprites.draw(screen)
     pygame.display.update()  # Оновлюємо весь екран
+    Meteor.rotate_all()
+
 
 pygame.quit()
 

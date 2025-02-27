@@ -4,8 +4,11 @@ import random
 
 
 class Meteor(pygame.sprite.Sprite):
+    all_meteors = []
+
     def __init__(self, mob_images):
         super().__init__()
+        Meteor.all_meteors.append(self)
         size = random.randint(20, 50)
         self.image = pygame.transform.scale(random.choice(mob_images), (size, size))
         self.image_orig = self.image.copy()
@@ -20,18 +23,19 @@ class Meteor(pygame.sprite.Sprite):
         self.rotation_speed = random.randrange(-8, 8)
 
     def rotate(self):
-        time_now = pygame.time.get_ticks()
-        if time_now - self.last_update > 50:
-            self.last_update = time_now
-            self.rotation = (self.rotation + self.rotation_speed) % 360
-            new_image = pygame.transform.rotate(self.image, self.rotation)
-            old_center = self.rect.center
-            self.image = new_image
-            self.rect = self.image.get_rect()
-            self.rect.center = old_center
+        self.rotation = (self.rotation + self.rotation_speed) % 360
+        new_image = pygame.transform.rotate(self.image_orig, self.rotation)
+        old_center = self.rect.center
+        self.image = new_image
+        self.rect = self.image.get_rect()
+        self.rect.center = old_center
+
+    @classmethod
+    def rotate_all(cls):
+        for meteor in cls.all_meteors:
+            meteor.rotate()
 
     def update(self):
-        self.rotate()
         self.rect.x += self.speedx
         self.rect.y += self.speedy
 
