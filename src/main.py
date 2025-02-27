@@ -33,7 +33,7 @@ class SimpleImage(Strategy):
 
 class PhotoImage(Strategy):
     def __init__(self, player_image):
-        self.image = pygame.transform.scale(player_image, (38, 38))
+        self.image = pygame.transform.scale(player_image, (36, 42))
         self.image.set_colorkey(BLACK)
 
     def get_surface(self):
@@ -43,6 +43,7 @@ class PhotoImage(Strategy):
 # Load images
 img = pygame.image.load(BG_IMG)
 meteor = pygame.image.load(METEOR_IMG)
+ship = pygame.image.load(SHIP)
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -53,7 +54,7 @@ clock = pygame.time.Clock()
 mob_images = [meteor]
 
 c = Context()
-c.set_strategy(PhotoImage(player_image=meteor))
+c.set_strategy(PhotoImage(player_image=ship))
 
 all_sprites = pygame.sprite.Group()
 player = Player(context=c)
@@ -73,7 +74,7 @@ while running:
     clock.tick(FPS)
     print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
 
-    if process.memory_info().rss / 1024 / 1024 > 100:
+    if process.memory_info().rss / 1024 / 1024 > 200:
         running = False
 
     for event in pygame.event.get():
