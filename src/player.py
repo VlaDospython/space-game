@@ -3,10 +3,9 @@ from src.constants import *
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, context):
         super().__init__()
-        self.image = pygame.Surface((25, 40))
-        self.image.fill((255, 0, 0))
+        self.image = context.get_surface()
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
