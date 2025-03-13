@@ -5,48 +5,19 @@ import os
 from src.constants import *
 from src.player import Player
 from src.meteor import Meteor
-from abc import ABC, abstractmethod
+from src.heart import Heart
+# from src.image_strategy.Strategy import Strategy
+# from src.image_strategy.SimpleImage import SimpleImage
+from src.image_strategy.PhotoImage import PhotoImage
+from src.image_strategy.context import Context
 
 
-class Context:
-    def set_strategy(self, strat):
-        self.strategy = strat
-
-    def get_surface(self):
-        return self.strategy.get_surface()
-
-
-class Strategy(ABC):
-    @abstractmethod
-    def get_surface(self):
-        pass
-
-
-class SimpleImage(Strategy):
-    def __init__(self):
-        self.image = pygame.Surface((25, 40))
-        self.image.fill(RED)
-
-    def get_surface(self):
-        return self.image
-
-
-class PhotoImage(Strategy):
-    def __init__(self, player_image):
-        self.image = pygame.transform.scale(player_image, (36, 42))
-        self.image.set_colorkey(BLACK)
-
-    def get_surface(self):
-        return self.image
-
-
-class Heart(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(heart, (20, 20))
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+# Load images
+img = pygame.image.load(BG_IMG)
+meteor = pygame.image.load(METEOR_IMG)
+ship = pygame.image.load(SHIP)
+heart_img = pygame.image.load(HEART)
+pygame.init()
 
 
 def spawn_hearts():
@@ -54,19 +25,12 @@ def spawn_hearts():
     pos_x = 10
     for j in range(player_lives):
         pos_x += 20
-        heart = Heart(pos_x, 10)
+        heart = Heart(pos_x, 10, heart_img)
         hearts.append(heart)
         if isinstance(heart, Heart):
             all_sprites.add(heart)
 
 
-# Load images
-img = pygame.image.load(BG_IMG)
-meteor = pygame.image.load(METEOR_IMG)
-ship = pygame.image.load(SHIP)
-heart = pygame.image.load(HEART)
-
-pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption(SCREEN_TITLE)
 pygame.mixer.init()
