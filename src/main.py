@@ -43,6 +43,9 @@ c = Context()
 c.set_strategy(PhotoImage(player_image=ship))
 
 all_sprites = pygame.sprite.Group()
+meteors = pygame.sprite.Group()
+bullets = pygame.sprite.Group()
+
 player = Player(context=c)
 all_sprites.add(player)
 all_sprites.add(hearts)
@@ -50,7 +53,6 @@ all_sprites.add(hearts)
 process = psutil.Process(os.getpid())
 total_memory_mb = psutil.virtual_memory().total / (1024 * 1024)
 
-meteors = pygame.sprite.Group()
 
 # **Додавання метеоритів у групу
 for _ in range(random.randint(15, 30)):
@@ -68,6 +70,10 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                player.shoot()
+
     # Перевірка на зіткнення з метеорами
     hits = pygame.sprite.spritecollide(player, meteors, True)
     if hits:
@@ -79,6 +85,10 @@ while running:
     # Перевірка кількості життів
     if player.lives == 0:
         running = False
+
+    bullets_hits = pygame.sprite.groupcollide(groupa=meteors, groupb=bullets, dokilla=True, dokillb=True)
+    for hit in bullets_hits:
+        meteors.add(Meteor(mob_images))
 
     # Оновлення стану ігрових об'єктів
     meteors.update()

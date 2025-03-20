@@ -1,5 +1,6 @@
 import pygame
 from src.constants import *
+from src.bullet import Bullet
 
 
 class Player(pygame.sprite.Sprite):
@@ -28,3 +29,8 @@ class Player(pygame.sprite.Sprite):
             self.speedx = 10
 
         self.rect.x += self.speedx
+
+    def shoot(self):
+        from src.main import bullets
+        bullet = Bullet(self.rect.centerx, self.rect.top, RED)
+        bullets.add(bullet)
