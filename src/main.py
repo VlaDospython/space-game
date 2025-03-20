@@ -11,7 +11,6 @@ from src.image_strategy.PhotoImage import PhotoImage
 from src.image_strategy.SimpleImage import SimpleImage
 from src.image_strategy.context import Context
 
-
 # Load images
 img = pygame.image.load(BG_IMG)
 meteor = pygame.image.load(METEOR_IMG)
@@ -31,6 +30,13 @@ def spawn_hearts():
             all_sprites.add(heart)
 
 
+def shoot():
+    global current_time
+    current_time = pygame.time.get_ticks()
+    bullet = Bullet(player.rect.centerx, player.rect.top, b)
+    bullets.add(bullet)
+
+
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption(SCREEN_TITLE)
 pygame.mixer.init()
@@ -42,7 +48,7 @@ hearts = []
 c = Context()
 c.set_strategy(PhotoImage(player_image=ship))
 b = Context()
-b.set_strategy(SimpleImage())
+b.set_strategy(SimpleImage(size=(5, 10), color=RED))
 
 all_sprites = pygame.sprite.Group()
 meteors = pygame.sprite.Group()
@@ -55,11 +61,11 @@ all_sprites.add(hearts)
 process = psutil.Process(os.getpid())
 total_memory_mb = psutil.virtual_memory().total / (1024 * 1024)
 
-
 # **Додавання метеоритів у групу
 for _ in range(random.randint(15, 30)):
     meteors.add(Meteor(mob_images))
 
+current_time = pygame.time.get_ticks()
 
 while running:
     clock.tick(FPS)
@@ -71,10 +77,12 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                bullet = Bullet(player.rect.centerx, player.rect.top, b)
-                bullets.add(bullet)
+
+    keystate = pygame.key.get_pressed()
+    if keystate[pygame.K_SPACE]:
+        if pygame.time.get_ticks() - current_time >= 200:
+            shoot()
+
 
     # Перевірка на зіткнення з метеорами
     hits = pygame.sprite.spritecollide(player, meteors, True)
@@ -95,6 +103,7 @@ while running:
     # Оновлення стану ігрових об'єктів
     bullets.update()
     meteors.update()
+    # TODO: створити метеорит для якого треба більше ніж одне попадання
     all_sprites.update()
     pygame.display.update()  # Оновлюємо весь екран
     Meteor.rotate_all()
@@ -108,4 +117,3 @@ while running:
     bullets.draw(screen)
 
 pygame.quit()
-
