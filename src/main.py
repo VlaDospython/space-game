@@ -4,11 +4,11 @@ import psutil  # Використання пам’яті всього проц�
 import os
 from src.constants import *
 from src.player import Player
+from src.bullet import Bullet
 from src.meteor import Meteor
 from src.heart import Heart
-# from src.image_strategy.Strategy import Strategy
-# from src.image_strategy.SimpleImage import SimpleImage
 from src.image_strategy.PhotoImage import PhotoImage
+from src.image_strategy.SimpleImage import SimpleImage
 from src.image_strategy.context import Context
 
 
@@ -41,6 +41,8 @@ hearts = []
 
 c = Context()
 c.set_strategy(PhotoImage(player_image=ship))
+b = Context()
+b.set_strategy(SimpleImage())
 
 all_sprites = pygame.sprite.Group()
 meteors = pygame.sprite.Group()
@@ -69,10 +71,10 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                player.shoot()
+                bullet = Bullet(player.rect.centerx, player.rect.top, b)
+                bullets.add(bullet)
 
     # Перевірка на зіткнення з метеорами
     hits = pygame.sprite.spritecollide(player, meteors, True)
@@ -91,6 +93,7 @@ while running:
         meteors.add(Meteor(mob_images))
 
     # Оновлення стану ігрових об'єктів
+    bullets.update()
     meteors.update()
     all_sprites.update()
     pygame.display.update()  # Оновлюємо весь екран
@@ -100,8 +103,9 @@ while running:
     # Рендеринг
     screen.fill((0, 0, 0))  # Заливка екрану чорним кольором
     screen.blit(img, (0, 0))
-    meteors.draw(screen)
     all_sprites.draw(screen)
+    meteors.draw(screen)
+    bullets.draw(screen)
 
 pygame.quit()
 
