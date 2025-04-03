@@ -7,6 +7,7 @@ from src.player import Player
 from src.bullet import Bullet
 from src.meteor import Meteor
 from src.heart import Heart
+from src.Big_meteor import Big_Meteor
 from src.image_strategy.PhotoImage import PhotoImage
 from src.image_strategy.SimpleImage import SimpleImage
 from src.image_strategy.context import Context
@@ -44,6 +45,16 @@ def shoot():
     play_sound(BULLET_SOUND_3, 1)
 
 
+def spawn_big_meteor():
+    global big_meteor_current_time
+    big_meteor_current_time = pygame.time.get_ticks()
+    big_meteors.add(Big_Meteor(mob_images))
+
+
+# def count_hits():
+#     Big_Meteor.l
+
+
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption(SCREEN_TITLE)
 pygame.mixer.init()
@@ -63,6 +74,7 @@ b.set_strategy(SimpleImage(size=(5, 10), color=RED))
 all_sprites = pygame.sprite.Group()
 meteors = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
+big_meteors = pygame.sprite.Group()
 
 player = Player(context=c)
 all_sprites.add(player)
@@ -71,15 +83,17 @@ all_sprites.add(hearts)
 process = psutil.Process(os.getpid())
 total_memory_mb = psutil.virtual_memory().total / (1024 * 1024)
 
+
 # **Додавання метеоритів у групу
 for _ in range(random.randint(15, 30)):
     meteors.add(Meteor(mob_images))
 
 current_time = pygame.time.get_ticks()
+big_meteor_current_time = pygame.time.get_ticks()
 
 while running:
     clock.tick(FPS)
-    print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
+    # print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
 
     if process.memory_info().rss / 1024 / 1024 > 200:
         running = False
@@ -102,17 +116,35 @@ while running:
         spawn_hearts()
         play_sound(EXPLOSION_SOUND, 2)
 
+    # Перевірка на зіткнення з великими метеорами
+    hits = pygame.sprite.spritecollide(player, big_meteors, True)
+    if hits:
+        player.kill()
+        running = False
+
     # Перевірка кількості життів
     if player.lives == 0:
         running = False
 
     bullets_hits = pygame.sprite.groupcollide(groupa=meteors, groupb=bullets, dokilla=True, dokillb=True)
     for hit in bullets_hits:
+        print(hit)
+
         meteors.add(Meteor(mob_images))
+
+    big_bullets_hits = pygame.sprite.groupcollide(groupa=big_meteors, groupb=bullets, dokilla=False , dokillb=True)
+    # print(big_bullets_hits)
+    for hit in big_bullets_hits:
+        hit.lives -= 1
+        print(hit.lives)
+
+    if pygame.time.get_ticks() - big_meteor_current_time >= BIG_METEOR_SPAWN_DELAY:
+        spawn_big_meteor()
 
     # Оновлення стану ігрових об'єктів
     bullets.update()
     meteors.update()
+    big_meteors.update()
     # TODO: створити метеорит для якого треба більше ніж одне попадання
     all_sprites.update()
     pygame.display.update()  # Оновлюємо весь екран
@@ -124,6 +156,7 @@ while running:
     screen.blit(img, (0, 0))
     all_sprites.draw(screen)
     meteors.draw(screen)
+    big_meteors.draw(screen)
     bullets.draw(screen)
 
 pygame.quit()
