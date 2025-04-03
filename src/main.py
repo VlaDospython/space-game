@@ -30,16 +30,25 @@ def spawn_hearts():
             all_sprites.add(heart)
 
 
+def play_sound(sound_: str):
+    channel = pygame.mixer.Channel(1)
+    channel.play(pygame.mixer.Sound(sound_))
+
+
 def shoot():
     global current_time
     current_time = pygame.time.get_ticks()
     bullet = Bullet(player.rect.centerx, player.rect.top, b)
     bullets.add(bullet)
+    play_sound(BULLET_SOUND_3)
 
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption(SCREEN_TITLE)
 pygame.mixer.init()
+bg_music = pygame.mixer.Sound(BG_MUSIC)
+bg_music.set_volume(1)
+bg_music.play()
 running = True
 clock = pygame.time.Clock()
 mob_images = [meteor]
@@ -80,9 +89,8 @@ while running:
 
     keystate = pygame.key.get_pressed()
     if keystate[pygame.K_SPACE]:
-        if pygame.time.get_ticks() - current_time >= 200:
+        if pygame.time.get_ticks() - current_time >= SHOOT_DELAY:
             shoot()
-
 
     # Перевірка на зіткнення з метеорами
     hits = pygame.sprite.spritecollide(player, meteors, True)
