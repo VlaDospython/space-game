@@ -30,8 +30,9 @@ def spawn_hearts():
             all_sprites.add(heart)
 
 
-def play_sound(sound_: str):
-    channel = pygame.mixer.Channel(1)
+def play_sound(sound_: str, number_of_channel: int):
+    channel = pygame.mixer.Channel(number_of_channel)
+    channel.set_volume(0.1)
     channel.play(pygame.mixer.Sound(sound_))
 
 
@@ -40,14 +41,14 @@ def shoot():
     current_time = pygame.time.get_ticks()
     bullet = Bullet(player.rect.centerx, player.rect.top, b)
     bullets.add(bullet)
-    play_sound(BULLET_SOUND_3)
+    play_sound(BULLET_SOUND_3, 1)
 
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption(SCREEN_TITLE)
 pygame.mixer.init()
 bg_music = pygame.mixer.Sound(BG_MUSIC)
-bg_music.set_volume(1)
+bg_music.set_volume(0.1)
 bg_music.play()
 running = True
 clock = pygame.time.Clock()
@@ -99,6 +100,7 @@ while running:
         all_sprites.remove(hearts)
         hearts = []
         spawn_hearts()
+        play_sound(EXPLOSION_SOUND, 2)
 
     # Перевірка кількості життів
     if player.lives == 0:

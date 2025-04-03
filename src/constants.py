@@ -15,3 +15,4 @@ SHOOT_DELAY = 115
 BULLET_SOUND_1 = "../res/sounds/pistol_sound.mp3"
 BULLET_SOUND_2 = "../res/sounds/whistle_shoot.mp3"
 BULLET_SOUND_3 = "../res/sounds/swarm_gun_03.mp3"
+EXPLOSION_SOUND = "../res/sounds/explosion.mp3"
