@@ -12,6 +12,7 @@ from src.image_strategy.PhotoImage import PhotoImage
 from src.image_strategy.SimpleImage import SimpleImage
 from src.image_strategy.context import Context
 from medicine import AidKit
+from enemy import Enemy
 
 # Load images
 img = pygame.image.load(BG_IMG)
@@ -19,6 +20,7 @@ meteor = pygame.image.load(METEOR_IMG)
 ship = pygame.image.load(SHIP)
 heart_img = pygame.image.load(HEART)
 aidkit_img = pygame.image.load(AIDKIT_IMG)
+enemy_img = pygame.image.load(ENEMY_IMG)
 pygame.init()
 
 
@@ -74,6 +76,8 @@ c = Context()
 c.set_strategy(PhotoImage(player_image=ship))
 b = Context()
 b.set_strategy(SimpleImage(size=(5, 10), color=RED))
+enemy_context = Context()
+enemy_context.set_strategy(PhotoImage(player_image=enemy_img))
 
 all_sprites = pygame.sprite.Group()
 meteors = pygame.sprite.Group()
@@ -82,8 +86,10 @@ big_meteors = pygame.sprite.Group()
 aidkits = pygame.sprite.Group()
 
 player = Player(context=c)
+enemy = Enemy(context=enemy_context)
 all_sprites.add(player)
 all_sprites.add(hearts)
+all_sprites.add(enemy)
 
 process = psutil.Process(os.getpid())
 total_memory_mb = psutil.virtual_memory().total / (1024 * 1024)
@@ -145,7 +151,7 @@ while running:
 
     aidkit_hits = pygame.sprite.spritecollide(player, aidkits, True)
     for hit in aidkit_hits:
-        player.lives = 3
+        player.lives += 1
         all_sprites.remove(hearts)
         hearts = []
         spawn_hearts()
