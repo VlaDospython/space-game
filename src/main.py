@@ -11,12 +11,14 @@ from src.Big_meteor import Big_Meteor
 from src.image_strategy.PhotoImage import PhotoImage
 from src.image_strategy.SimpleImage import SimpleImage
 from src.image_strategy.context import Context
+from medicine import AidKit
 
 # Load images
 img = pygame.image.load(BG_IMG)
 meteor = pygame.image.load(METEOR_IMG)
 ship = pygame.image.load(SHIP)
 heart_img = pygame.image.load(HEART)
+aidkit_img = pygame.image.load(AIDKIT_IMG)
 pygame.init()
 
 
@@ -51,8 +53,10 @@ def spawn_big_meteor():
     big_meteors.add(Big_Meteor(mob_images))
 
 
-# def count_hits():
-#     Big_Meteor.l
+def spawn_aidkit():
+    global aidkit_current_time
+    aidkit_current_time = pygame.time.get_ticks()
+    aidkits.add(AidKit(aidkit_img))
 
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -75,6 +79,7 @@ all_sprites = pygame.sprite.Group()
 meteors = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 big_meteors = pygame.sprite.Group()
+aidkits = pygame.sprite.Group()
 
 player = Player(context=c)
 all_sprites.add(player)
@@ -90,6 +95,7 @@ for _ in range(random.randint(15, 30)):
 
 current_time = pygame.time.get_ticks()
 big_meteor_current_time = pygame.time.get_ticks()
+aidkit_current_time = pygame.time.get_ticks()
 
 while running:
     clock.tick(FPS)
@@ -132,21 +138,31 @@ while running:
 
         meteors.add(Meteor(mob_images))
 
-    big_bullets_hits = pygame.sprite.groupcollide(groupa=big_meteors, groupb=bullets, dokilla=False , dokillb=True)
-    # print(big_bullets_hits)
+    big_bullets_hits = pygame.sprite.groupcollide(groupa=big_meteors, groupb=bullets, dokilla=False, dokillb=True)
     for hit in big_bullets_hits:
         hit.lives -= 1
         print(hit.lives)
 
+    aidkit_hits = pygame.sprite.spritecollide(player, aidkits, True)
+    for hit in aidkit_hits:
+        player.lives = 3
+        all_sprites.remove(hearts)
+        hearts = []
+        spawn_hearts()
+        play_sound(AIDKIT_SOUND, 3)
+
     if pygame.time.get_ticks() - big_meteor_current_time >= BIG_METEOR_SPAWN_DELAY:
         spawn_big_meteor()
+
+    if pygame.time.get_ticks() - aidkit_current_time >= AIDKIT_SPAWN_DELAY:
+        spawn_aidkit()
 
     # Оновлення стану ігрових об'єктів
     bullets.update()
     meteors.update()
     big_meteors.update()
-    # TODO: створити метеорит для якого треба більше ніж одне попадання
     all_sprites.update()
+    aidkits.update()
     pygame.display.update()  # Оновлюємо весь екран
     Meteor.rotate_all()
     spawn_hearts()
@@ -158,5 +174,6 @@ while running:
     meteors.draw(screen)
     big_meteors.draw(screen)
     bullets.draw(screen)
+    aidkits.draw(screen)
 
 pygame.quit()

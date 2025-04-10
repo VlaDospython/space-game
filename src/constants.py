@@ -16,4 +16,7 @@ BULLET_SOUND_1 = "../res/sounds/pistol_sound.mp3"
 BULLET_SOUND_2 = "../res/sounds/whistle_shoot.mp3"
 BULLET_SOUND_3 = "../res/sounds/swarm_gun_03.mp3"
 EXPLOSION_SOUND = "../res/sounds/explosion.mp3"
+AIDKIT_SOUND = "../res/sounds/aidkit_sound.mp3"
 BIG_METEOR_SPAWN_DELAY = 10000
+AIDKIT_SPAWN_DELAY = 5000
+AIDKIT_IMG = "../res/images/aidkit.png"
