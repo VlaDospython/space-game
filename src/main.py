@@ -13,6 +13,7 @@ from src.image_strategy.SimpleImage import SimpleImage
 from src.image_strategy.context import Context
 from medicine import AidKit
 from enemy import Enemy
+from explosion import Explosion
 
 # Load images
 img = pygame.image.load(BG_IMG)
@@ -84,6 +85,7 @@ meteors = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 big_meteors = pygame.sprite.Group()
 aidkits = pygame.sprite.Group()
+explosions = pygame.sprite.Group()
 
 player = Player(context=c)
 enemy = Enemy(context=enemy_context)
@@ -103,9 +105,37 @@ current_time = pygame.time.get_ticks()
 big_meteor_current_time = pygame.time.get_ticks()
 aidkit_current_time = pygame.time.get_ticks()
 
+
+def load_explosion_images():
+    images = []
+    for i in range(9):
+        path = os.path.join(EXPLOSION_FOLDER, f"00{i}.png")
+        frame = pygame.image.load(path).convert_alpha()
+        frame = pygame.transform.scale(frame, (64, 64))
+        images.append(frame)
+    return images
+
+
+explosion_images = load_explosion_images()
+
+
+def shake_screen(screen, intensity=5, duration=300):
+    original_surface = screen.copy()
+    start_time = pygame.time.get_ticks()
+
+    while pygame.time.get_ticks() - start_time < duration:
+        offset_x = random.randint(-intensity, intensity)
+        offset_y = random.randint(-intensity, intensity)
+
+        screen.fill((0, 0, 0))  # Очистити фон
+        screen.blit(original_surface, (offset_x, offset_y))  # Малюємо зміщену копію
+        pygame.display.update()
+        pygame.time.delay(30)
+
+
 while running:
     clock.tick(FPS)
-    # print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
+    print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
 
     if process.memory_info().rss / 1024 / 1024 > 200:
         running = False
@@ -127,6 +157,7 @@ while running:
         hearts = []
         spawn_hearts()
         play_sound(EXPLOSION_SOUND, 2)
+        shake_screen(screen)
 
     # Перевірка на зіткнення з великими метеорами
     hits = pygame.sprite.spritecollide(player, big_meteors, True)
@@ -140,9 +171,11 @@ while running:
 
     bullets_hits = pygame.sprite.groupcollide(groupa=meteors, groupb=bullets, dokilla=True, dokillb=True)
     for hit in bullets_hits:
-        print(hit)
-
+        explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images)
+        all_sprites.add(explosion)
+        explosions.add(explosion)
         meteors.add(Meteor(mob_images))
+        play_sound(EXPLOSION_SOUND, 2)  # звук вибуху при попаданні
 
     big_bullets_hits = pygame.sprite.groupcollide(groupa=big_meteors, groupb=bullets, dokilla=False, dokillb=True)
     for hit in big_bullets_hits:
@@ -170,6 +203,7 @@ while running:
     all_sprites.update()
     aidkits.update()
     pygame.display.update()  # Оновлюємо весь екран
+    explosions.update()
     Meteor.rotate_all()
     spawn_hearts()
 
@@ -181,5 +215,6 @@ while running:
     big_meteors.draw(screen)
     bullets.draw(screen)
     aidkits.draw(screen)
+    explosions.draw(screen)
 
 pygame.quit()
