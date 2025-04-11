@@ -106,17 +106,17 @@ big_meteor_current_time = pygame.time.get_ticks()
 aidkit_current_time = pygame.time.get_ticks()
 
 
-def load_explosion_images():
+def load_explosion_images(size_1: int, size_2: int):
     images = []
     for i in range(9):
         path = os.path.join(EXPLOSION_FOLDER, f"00{i}.png")
         frame = pygame.image.load(path).convert_alpha()
-        frame = pygame.transform.scale(frame, (64, 64))
+        frame = pygame.transform.scale(frame, (size_1, size_2))
         images.append(frame)
     return images
 
 
-explosion_images = load_explosion_images()
+explosion_images = load_explosion_images(64, 64)
 
 
 def shake_screen(screen, intensity=5, duration=300):
@@ -127,8 +127,8 @@ def shake_screen(screen, intensity=5, duration=300):
         offset_x = random.randint(-intensity, intensity)
         offset_y = random.randint(-intensity, intensity)
 
-        screen.fill((0, 0, 0))  # Очистити фон
-        screen.blit(original_surface, (offset_x, offset_y))  # Малюємо зміщену копію
+        screen.fill((0, 0, 0))
+        screen.blit(original_surface, (offset_x, offset_y))
         pygame.display.update()
         pygame.time.delay(30)
 
@@ -156,7 +156,7 @@ while running:
         all_sprites.remove(hearts)
         hearts = []
         spawn_hearts()
-        play_sound(EXPLOSION_SOUND, 2)
+        play_sound(SHUTTLE_EXPLOSION_SOUND, 4)
         shake_screen(screen)
 
     # Перевірка на зіткнення з великими метеорами
@@ -175,12 +175,23 @@ while running:
         all_sprites.add(explosion)
         explosions.add(explosion)
         meteors.add(Meteor(mob_images))
-        play_sound(EXPLOSION_SOUND, 2)  # звук вибуху при попаданні
+        play_sound(EXPLOSION_SOUND, 2)
 
     big_bullets_hits = pygame.sprite.groupcollide(groupa=big_meteors, groupb=bullets, dokilla=False, dokillb=True)
     for hit in big_bullets_hits:
         hit.lives -= 1
         print(hit.lives)
+        explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images)
+        all_sprites.add(explosion)
+        explosions.add(explosion)
+        play_sound(EXPLOSION_SOUND, 2)
+
+        if hit.lives <= 0:
+            explosion_images_ = load_explosion_images(264, 264)
+            explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images_)
+            all_sprites.add(explosion)
+            explosions.add(explosion)
+            play_sound(BIG_EXPLOSION_SOUND, 5)
 
     aidkit_hits = pygame.sprite.spritecollide(player, aidkits, True)
     for hit in aidkit_hits:

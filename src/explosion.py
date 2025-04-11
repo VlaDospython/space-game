@@ -1,5 +1,6 @@
 import pygame
 
+
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, center, explosion_images):
         super().__init__()
@@ -9,7 +10,7 @@ class Explosion(pygame.sprite.Sprite):
         self.rect.center = center
         self.frame = 0
         self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 50  # мс між кадрами
+        self.frame_rate = 50
 
     def update(self):
         now = pygame.time.get_ticks()
@@ -22,4 +23,4 @@ class Explosion(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = center
             else:
-                self.kill()  # Вибух завершено — видаляємо спрайт
+                self.kill()
