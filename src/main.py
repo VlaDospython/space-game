@@ -36,9 +36,9 @@ def spawn_hearts():
             all_sprites.add(heart)
 
 
-def play_sound(sound_: str, number_of_channel: int):
+def play_sound(sound_: str, number_of_channel: int, volume: float):
     channel = pygame.mixer.Channel(number_of_channel)
-    channel.set_volume(0.1)
+    channel.set_volume(volume)
     channel.play(pygame.mixer.Sound(sound_))
 
 
@@ -47,7 +47,7 @@ def shoot():
     current_time = pygame.time.get_ticks()
     bullet = Bullet(player.rect.centerx, player.rect.top, b)
     bullets.add(bullet)
-    play_sound(BULLET_SOUND_3, 1)
+    play_sound(BULLET_SOUND_3, 1, volume=0.1)
 
 
 def spawn_big_meteor():
@@ -72,6 +72,10 @@ running = True
 clock = pygame.time.Clock()
 mob_images = [meteor]
 hearts = []
+shake_offset = [0, 0]
+shake_duration = 0
+shake_intensity = 0
+shake_start_time = 0
 
 c = Context()
 c.set_strategy(PhotoImage(player_image=ship))
@@ -116,21 +120,23 @@ def load_explosion_images(size_1: int, size_2: int):
     return images
 
 
-explosion_images = load_explosion_images(64, 64)
+explosion_images = load_explosion_images(90, 90)
 
 
-def shake_screen(screen, intensity=5, duration=300):
-    original_surface = screen.copy()
-    start_time = pygame.time.get_ticks()
+def start_screen_shake(intensity, duration):
+    global shake_duration, shake_intensity, shake_start_time
+    shake_intensity = intensity
+    shake_duration = duration
+    shake_start_time = pygame.time.get_ticks()
 
-    while pygame.time.get_ticks() - start_time < duration:
-        offset_x = random.randint(-intensity, intensity)
-        offset_y = random.randint(-intensity, intensity)
 
-        screen.fill((0, 0, 0))
-        screen.blit(original_surface, (offset_x, offset_y))
-        pygame.display.update()
-        pygame.time.delay(30)
+def update_screen_shake():
+    global shake_offset
+    if pygame.time.get_ticks() - shake_start_time < shake_duration:
+        shake_offset[0] = random.randint(-shake_intensity, shake_intensity)
+        shake_offset[1] = random.randint(-shake_intensity, shake_intensity)
+    else:
+        shake_offset = [0, 0]
 
 
 while running:
@@ -149,34 +155,50 @@ while running:
         if pygame.time.get_ticks() - current_time >= SHOOT_DELAY:
             shoot()
 
-    # Перевірка на зіткнення з метеорами
+    # Перевірка на зіткнення гравця з метеорами
     hits = pygame.sprite.spritecollide(player, meteors, True)
     if hits:
         player.lives -= 1
         all_sprites.remove(hearts)
         hearts = []
         spawn_hearts()
-        play_sound(SHUTTLE_EXPLOSION_SOUND, 4)
-        shake_screen(screen)
+        start_screen_shake(intensity=15, duration=700)
+        for hit in hits:
+            play_sound(SHUTTLE_EXPLOSION_SOUND, 4, volume=1)
+            explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images)
+            all_sprites.add(explosion)
+            explosions.add(explosion)
 
-    # Перевірка на зіткнення з великими метеорами
+    # Перевірка на зіткнення гравця з великими метеорами
     hits = pygame.sprite.spritecollide(player, big_meteors, True)
     if hits:
+        explosion_images1 = load_explosion_images(164, 164)
+        explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images1)
+        all_sprites.add(explosion)
+        explosions.add(explosion)
+        play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=1)
         player.kill()
         running = False
 
     # Перевірка кількості життів
     if player.lives == 0:
+        explosion_images1 = load_explosion_images(164, 164)
+        explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images1)
+        all_sprites.add(explosion)
+        explosions.add(explosion)
+        play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=1)
         running = False
 
+    # Перевірка на зіткнення куль з метеоритами
     bullets_hits = pygame.sprite.groupcollide(groupa=meteors, groupb=bullets, dokilla=True, dokillb=True)
     for hit in bullets_hits:
         explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images)
         all_sprites.add(explosion)
         explosions.add(explosion)
         meteors.add(Meteor(mob_images))
-        play_sound(EXPLOSION_SOUND, 2)
+        play_sound(EXPLOSION_SOUND, 2, volume=0.1)
 
+    # Перевірка на зіткнення куль з великими метеорами
     big_bullets_hits = pygame.sprite.groupcollide(groupa=big_meteors, groupb=bullets, dokilla=False, dokillb=True)
     for hit in big_bullets_hits:
         hit.lives -= 1
@@ -184,22 +206,36 @@ while running:
         explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images)
         all_sprites.add(explosion)
         explosions.add(explosion)
-        play_sound(EXPLOSION_SOUND, 2)
+        play_sound(EXPLOSION_SOUND, 2, volume=0.1)
 
         if hit.lives <= 0:
             explosion_images_ = load_explosion_images(264, 264)
             explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images_)
             all_sprites.add(explosion)
             explosions.add(explosion)
-            play_sound(BIG_EXPLOSION_SOUND, 5)
+            play_sound(BIG_EXPLOSION_SOUND, 5, volume=0.7)
 
+    # Перевірка на зіткнення гравця з аптечками
     aidkit_hits = pygame.sprite.spritecollide(player, aidkits, True)
     for hit in aidkit_hits:
         player.lives += 1
         all_sprites.remove(hearts)
         hearts = []
         spawn_hearts()
-        play_sound(AIDKIT_SOUND, 3)
+        play_sound(AIDKIT_SOUND, 3, volume=1)
+
+    # Перевірка на зіткнення ворога з кулями
+    bullets_hits_to_enemy = pygame.sprite.spritecollide(enemy, bullets, True)
+    for hit in bullets_hits_to_enemy:
+        explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images)
+        all_sprites.add(explosion)
+        explosions.add(explosion)
+        play_sound(EXPLOSION_SOUND, 2, volume=0.1)
+
+    # Перевірка на зіткнення куль з аптечками
+    aidkit_bullet_hits = pygame.sprite.groupcollide(bullets, aidkits, dokilla=True, dokillb=True)
+    for hit in aidkit_bullet_hits:
+        play_sound(EXPLOSION_SOUND, 2, volume=0.1)
 
     if pygame.time.get_ticks() - big_meteor_current_time >= BIG_METEOR_SPAWN_DELAY:
         spawn_big_meteor()
@@ -215,12 +251,13 @@ while running:
     aidkits.update()
     pygame.display.update()  # Оновлюємо весь екран
     explosions.update()
+    update_screen_shake()
     Meteor.rotate_all()
     spawn_hearts()
 
     # Рендеринг
     screen.fill((0, 0, 0))  # Заливка екрану чорним кольором
-    screen.blit(img, (0, 0))
+    screen.blit(img, shake_offset)
     all_sprites.draw(screen)
     meteors.draw(screen)
     big_meteors.draw(screen)

@@ -29,4 +29,12 @@ class Enemy(pygame.sprite.Sprite):
         elif self.rect.y >= 50:
             self.speedy = -1
 
+    def shoot(self, target, group):
+        now = pygame.time.get_ticks()
+        if now - self.last_shot >= self.shoot_delay:
+            self.last_shot = now
+            bullet = EnemyBullet(self.rect.centerx, self.rect.bottom, target.rect)
+            group.add(bullet)
+
+
 
