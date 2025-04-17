@@ -164,7 +164,7 @@ while running:
         spawn_hearts()
         start_screen_shake(intensity=15, duration=700)
         for hit in hits:
-            play_sound(SHUTTLE_EXPLOSION_SOUND, 4, volume=1)
+            play_sound(SHUTTLE_EXPLOSION_SOUND, 4, volume=0.2)
             explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images)
             all_sprites.add(explosion)
             explosions.add(explosion)
@@ -176,17 +176,17 @@ while running:
         explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images1)
         all_sprites.add(explosion)
         explosions.add(explosion)
-        play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=1)
+        play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
         player.kill()
         running = False
 
     # Перевірка кількості життів
-    if player.lives == 0:
+    if player.lives <= 0:
         explosion_images1 = load_explosion_images(164, 164)
         explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images1)
         all_sprites.add(explosion)
         explosions.add(explosion)
-        play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=1)
+        play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
         running = False
 
     # Перевірка на зіткнення куль з метеоритами
@@ -230,7 +230,20 @@ while running:
         explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images)
         all_sprites.add(explosion)
         explosions.add(explosion)
+        enemy.lives -= 1
         play_sound(EXPLOSION_SOUND, 2, volume=0.1)
+
+    # Перевірка кількості життів ворога
+    if enemy.lives <= 0 and not enemy.dead:
+        explosion_images1 = load_explosion_images(164, 164)
+        explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images1)
+        all_sprites.add(explosion)
+        explosions.add(explosion)
+        enemy.dead = True
+        # TODO: delete enemy from memory after death
+        all_sprites.remove(enemy)
+        play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
+
 
     # Перевірка на зіткнення куль з аптечками
     aidkit_bullet_hits = pygame.sprite.groupcollide(bullets, aidkits, dokilla=True, dokillb=True)

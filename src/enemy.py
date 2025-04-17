@@ -13,6 +13,7 @@ class Enemy(pygame.sprite.Sprite):
         self.speedx = random.randint(-5, 5)
         self.speedy = random.randint(-1, 1)
         self.lives = 3
+        self.dead = False
 
     def update(self):
         self.rect.y += self.speedy
