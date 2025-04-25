@@ -140,7 +140,7 @@ def main():
 
     while running:
         clock.tick(FPS)
-        print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
+        # print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
 
         if process.memory_info().rss / 1024 / 1024 > 200:
             running = False
