@@ -14,6 +14,7 @@ from src.image_strategy.context import Context
 from medicine import AidKit
 from enemy import Enemy
 from explosion import Explosion
+from enemy_rocket import Rocket
 
 # Load images
 img = pygame.image.load(BG_IMG)
@@ -90,12 +91,15 @@ bullets = pygame.sprite.Group()
 big_meteors = pygame.sprite.Group()
 aidkits = pygame.sprite.Group()
 explosions = pygame.sprite.Group()
+rockets = pygame.sprite.Group()
+
 
 player = Player(context=c)
 enemy = Enemy(context=enemy_context)
 all_sprites.add(player)
 all_sprites.add(hearts)
 all_sprites.add(enemy)
+all_sprites.add(rockets)
 
 process = psutil.Process(os.getpid())
 total_memory_mb = psutil.virtual_memory().total / (1024 * 1024)
@@ -108,6 +112,7 @@ for _ in range(random.randint(15, 30)):
 current_time = pygame.time.get_ticks()
 big_meteor_current_time = pygame.time.get_ticks()
 aidkit_current_time = pygame.time.get_ticks()
+rocket_current_time = pygame.time.get_ticks()
 
 
 def load_explosion_images(size_1: int, size_2: int):
@@ -245,6 +250,7 @@ while running:
         play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
 
 
+
     # Перевірка на зіткнення куль з аптечками
     aidkit_bullet_hits = pygame.sprite.groupcollide(bullets, aidkits, dokilla=True, dokillb=True)
     for hit in aidkit_bullet_hits:
@@ -256,6 +262,10 @@ while running:
     if pygame.time.get_ticks() - aidkit_current_time >= AIDKIT_SPAWN_DELAY:
         spawn_aidkit()
 
+    if pygame.time.get_ticks() - rocket_current_time >= ROCKET_SPAWN_DELAY:
+        enemy.launch_rocket(player, rockets, explosion_images, meteors)
+        rocket_current_time = pygame.time.get_ticks()
+
     # Оновлення стану ігрових об'єктів
     bullets.update()
     meteors.update()
@@ -264,6 +274,7 @@ while running:
     aidkits.update()
     pygame.display.update()  # Оновлюємо весь екран
     explosions.update()
+    rockets.update()
     update_screen_shake()
     Meteor.rotate_all()
     spawn_hearts()
@@ -277,5 +288,6 @@ while running:
     bullets.draw(screen)
     aidkits.draw(screen)
     explosions.draw(screen)
+    rockets.draw(screen)
 
 pygame.quit()

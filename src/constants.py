@@ -21,6 +21,7 @@ SHUTTLE_EXPLOSION_SOUND = "../res/sounds/silnyiy-raskatistyiy-vzryiv.mp3"
 AIDKIT_SOUND = "../res/sounds/aidkit_sound.mp3"
 BIG_METEOR_SPAWN_DELAY = 10000
 AIDKIT_SPAWN_DELAY = 12000
+ROCKET_SPAWN_DELAY = 2000
 AIDKIT_IMG = "../res/images/stuff/aidkit.png"
 ENEMY_IMG = '../res/images/enemies/enemy_red.png'
 EXPLOSION_FOLDER = '../res/images/animations/explosion_animation1'
