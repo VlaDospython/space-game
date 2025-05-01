@@ -41,7 +41,11 @@ class Rocket(pygame.sprite.Sprite):
             self.kill()
 
     def explode(self):
+        from meteor import Meteor
+
         self.exploded = True
+        meteor = pygame.image.load(METEOR_IMG)
+        mob_images = [meteor]
 
         # explosion = Explosion(center=self.rect.center, explosion_images=self.explosion_images)
         # all_sprites.add(explosion)
@@ -50,8 +54,10 @@ class Rocket(pygame.sprite.Sprite):
             dist = pygame.math.Vector2(meteor.rect.center).distance_to(self.rect.center)
             if dist < EXPLOSION_RADIUS:
                 meteor.kill()
+                self.meteors_group.add(Meteor(mob_images))
                 self.target.kill()
-                pygame.quit()
+                self.target.dead = True
+                # del self.target
 
-        self.kill()
+        del self
 

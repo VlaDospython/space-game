@@ -33,11 +33,12 @@ def main():
         channel.play(pygame.mixer.Sound(sound_))
 
     def shoot():
-        nonlocal current_time
-        current_time = pygame.time.get_ticks()
-        bullet = Bullet(player.rect.centerx, player.rect.top, b)
-        bullets.add(bullet)
-        play_sound(BULLET_SOUND_3, 1, volume=0.1)
+        if not player.dead:
+            nonlocal current_time
+            current_time = pygame.time.get_ticks()
+            bullet = Bullet(player.rect.centerx, player.rect.top, b)
+            bullets.add(bullet)
+            play_sound(BULLET_SOUND_3, 1, volume=0.1)
 
     def spawn_big_meteor():
         nonlocal big_meteor_current_time
@@ -71,6 +72,12 @@ def main():
             shake_offset[1] = random.randint(-shake_intensity, shake_intensity)
         else:
             shake_offset = [0, 0]
+
+    def spawn_meteors():
+        # Додавання метеоритів у групу
+        for _ in range(random.randint(15, 30)):
+            meteors.add(Meteor(mob_images))
+
 
     # Game and display init
     pygame.init()
@@ -125,9 +132,7 @@ def main():
     process = psutil.Process(os.getpid())
     total_memory_mb = psutil.virtual_memory().total / (1024 * 1024)
 
-    # Додавання метеоритів у групу
-    for _ in range(random.randint(15, 30)):
-        meteors.add(Meteor(mob_images))
+    spawn_meteors()
 
     current_time = pygame.time.get_ticks()
     big_meteor_current_time = pygame.time.get_ticks()
@@ -176,8 +181,6 @@ def main():
             all_sprites.add(explosion)
             explosions.add(explosion)
             play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
-            player.kill()
-            running = False
 
         # Перевірка кількості життів
         if player.lives <= 0:
@@ -186,7 +189,6 @@ def main():
             all_sprites.add(explosion)
             explosions.add(explosion)
             play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
-            running = False
 
         # Перевірка на зіткнення куль з метеоритами
         bullets_hits = pygame.sprite.groupcollide(groupa=meteors, groupb=bullets, dokilla=True, dokillb=True)
