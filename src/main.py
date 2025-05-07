@@ -16,6 +16,7 @@ from enemy import Enemy
 from explosion import Explosion
 from enemy_rocket import Rocket
 
+
 def main():
     def spawn_hearts():
         player_lives = player.lives
@@ -143,18 +144,12 @@ def main():
     running = True
     clock = pygame.time.Clock()
 
-    while running:
-        clock.tick(FPS)
-        # print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
 
-        if process.memory_info().rss / 1024 / 1024 > 200:
-            running = False
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+    def game_loop(hearts, rocket_current_time):
+        global game_state
 
         keystate = pygame.key.get_pressed()
+
         if keystate[pygame.K_SPACE]:
             if pygame.time.get_ticks() - current_time >= SHOOT_DELAY:
                 shoot()
@@ -184,11 +179,19 @@ def main():
 
         # Перевірка кількості життів
         if player.lives <= 0:
+            # тут треба вийти на початковий екран
+            pause_game(screen)
+            # start_screen()
+            game_state = 0
+            return
+
             explosion_images1 = load_explosion_images(164, 164)
             explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images1)
             all_sprites.add(explosion)
             explosions.add(explosion)
             play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
+
+
 
         # Перевірка на зіткнення куль з метеоритами
         bullets_hits = pygame.sprite.groupcollide(groupa=meteors, groupb=bullets, dokilla=True, dokillb=True)
@@ -283,6 +286,52 @@ def main():
         aidkits.draw(screen)
         explosions.draw(screen)
         rockets.draw(screen)
+
+    def start_screen():
+        # Рендеринг
+        screen.fill((0, 255, 0))  # Заливка екрану зеленим кольором
+        pygame.display.flip()
+
+    def pause_game(screen):
+        paused = True
+        # font = pygame.font.SysFont('Arial', 48)
+        # text = font.render('Пауза', True, (255, 255, 255))
+        # text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+
+        while paused:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p:  # натиснути P ще раз — продовжити
+                        paused = False
+
+            start_screen()
+
+    # 0: start screen
+    # 1: game loop
+    game_state = 0
+
+    while running:
+        clock.tick(FPS)
+        # print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
+
+        if process.memory_info().rss / 1024 / 1024 > 200:
+            running = False
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    game_state = 1
+
+        if game_state == 0:
+            start_screen()
+
+        if game_state == 1:
+            game_loop(hearts, rocket_current_time)
 
 
 if __name__ == '__main__':
