@@ -1,5 +1,6 @@
 import pygame
 from constants import *
+import math
 
 
 class Rocket(pygame.sprite.Sprite):
@@ -13,6 +14,7 @@ class Rocket(pygame.sprite.Sprite):
         self.meteors_group = meteors_group
         self.explosion_images = explosion_images
         self.exploded = False
+        self.rotation = 0
 
         target_center = self.target.rect.center
         dx = target_center[0] - x
@@ -21,6 +23,17 @@ class Rocket(pygame.sprite.Sprite):
         distance = (dx**2 + dy**2) ** 0.5
         self.speedx = dx / distance * 2
         self.speedy = dy / distance * 2
+
+    def rotate(self, dx, dy):
+        angle_rad = math.atan2(dx, dy)  # Повертає кут у радіанах
+        angle_deg = math.degrees(angle_rad)  # Перетворюємо на градуси
+
+        self.rotation = angle_deg
+
+        new_image = pygame.transform.rotate(self.original_image, self.rotation)
+        old_center = self.rect.center
+        self.image = new_image
+        self.rect = self.image.get_rect(center=old_center)
 
     def update(self):
         if not self.exploded:
@@ -35,6 +48,8 @@ class Rocket(pygame.sprite.Sprite):
 
             self.rect.x += direction.x * 10
             self.rect.y += self.speedy
+
+            self.rotate(dx, dy)
 
             if pygame.math.Vector2(self.rect.center).distance_to(self.target.rect.center) < 30:
                 self.explode()
