@@ -3,10 +3,11 @@ from constants import *
 
 
 class Rocket(pygame.sprite.Sprite):
-    def __init__(self, x, y, target_player, explosion_images, meteors_group):
+    def __init__(self, x, y, target_player, explosion_images, meteors_group, rocket_img):
         super().__init__()
-        self.image = pygame.Surface((20, 40))
-        self.image.fill((255, 165, 0))
+        self.original_image = pygame.transform.smoothscale(rocket_img, (65, 35))
+        self.original_image = pygame.transform.rotate(self.original_image, -90)
+        self.image = self.original_image.copy()
         self.rect = self.image.get_rect(center=(x, y))
         self.target = target_player
         self.meteors_group = meteors_group
@@ -55,8 +56,9 @@ class Rocket(pygame.sprite.Sprite):
             if dist < EXPLOSION_RADIUS:
                 meteor.kill()
                 self.meteors_group.add(Meteor(mob_images))
-                self.target.kill()
+                # self.target.kill()
                 self.target.dead = True
+                self.target.lives = 0
                 # del self.target
 
         del self

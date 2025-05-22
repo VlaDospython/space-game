@@ -180,7 +180,7 @@ def main():
         # Перевірка кількості життів
         if player.lives <= 0:
             # тут треба вийти на початковий екран
-            pause_game(screen)
+            pause_game()
             # start_screen()
             game_state = 0
             return
@@ -190,8 +190,6 @@ def main():
             all_sprites.add(explosion)
             explosions.add(explosion)
             play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
-
-
 
         # Перевірка на зіткнення куль з метеоритами
         bullets_hits = pygame.sprite.groupcollide(groupa=meteors, groupb=bullets, dokilla=True, dokillb=True)
@@ -292,20 +290,14 @@ def main():
         screen.fill((0, 255, 0))  # Заливка екрану зеленим кольором
         pygame.display.flip()
 
-    def pause_game(screen):
+    def pause_game():
         paused = True
-        # font = pygame.font.SysFont('Arial', 48)
-        # text = font.render('Пауза', True, (255, 255, 255))
-        # text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
 
         while paused:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_p:  # натиснути P ще раз — продовжити
-                        paused = False
 
             start_screen()
 

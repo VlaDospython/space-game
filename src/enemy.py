@@ -31,8 +31,8 @@ class Enemy(pygame.sprite.Sprite):
         elif self.rect.y >= 50:
             self.speedy = -1
 
-    def launch_rocket(self, target, rocket_group, explosion_images, meteors_group):
-        rocket = Rocket(self.rect.centerx, self.rect.bottom, target, explosion_images, meteors_group)
+    def launch_rocket(self, target, rocket_group, explosion_images, meteors_group, rocket_img):
+        rocket = Rocket(self.rect.centerx, self.rect.bottom, target, explosion_images, meteors_group, rocket_img)
         rocket_group.add(rocket)
 
 
