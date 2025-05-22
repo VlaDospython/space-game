@@ -16,7 +16,6 @@ from enemy import Enemy
 from explosion import Explosion
 from enemy_rocket import Rocket
 
-
 def main():
     def spawn_hearts():
         player_lives = player.lives
@@ -98,6 +97,7 @@ def main():
     heart_img = pygame.image.load(HEART)
     aidkit_img = pygame.image.load(AIDKIT_IMG)
     enemy_img = pygame.image.load(ENEMY_IMG)
+    enemy_rocket_img = pygame.image.load((ENEMY_ROCKET_IMG))
     explosion_images = load_explosion_images(90, 90)
     mob_images = [meteor]
 
@@ -144,9 +144,9 @@ def main():
     running = True
     clock = pygame.time.Clock()
 
-
-    def game_loop(hearts, rocket_current_time):
-        global game_state
+    def game_loop(hearts):
+        nonlocal game_state
+        nonlocal rocket_current_time
 
         keystate = pygame.key.get_pressed()
 
@@ -179,17 +179,15 @@ def main():
 
         # Перевірка кількості життів
         if player.lives <= 0:
-            # тут треба вийти на початковий екран
-            pause_game()
-            # start_screen()
             game_state = 0
+            # explosion_images1 = load_explosion_images(164, 164)
+            # explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images1)
+            # all_sprites.add(explosion)
+            # explosions.add(explosion)
+            # play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
+            pygame.time.wait(1000)
             return
 
-            explosion_images1 = load_explosion_images(164, 164)
-            explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images1)
-            all_sprites.add(explosion)
-            explosions.add(explosion)
-            play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
 
         # Перевірка на зіткнення куль з метеоритами
         bullets_hits = pygame.sprite.groupcollide(groupa=meteors, groupb=bullets, dokilla=True, dokillb=True)
@@ -258,7 +256,7 @@ def main():
             spawn_aidkit()
 
         if pygame.time.get_ticks() - rocket_current_time >= ROCKET_SPAWN_DELAY:
-            enemy.launch_rocket(player, rockets, explosion_images, meteors)
+            enemy.launch_rocket(player, rockets, explosion_images, meteors, enemy_rocket_img)
             rocket_current_time = pygame.time.get_ticks()
 
         # Оновлення стану ігрових об'єктів
@@ -290,17 +288,6 @@ def main():
         screen.fill((0, 255, 0))  # Заливка екрану зеленим кольором
         pygame.display.flip()
 
-    def pause_game():
-        paused = True
-
-        while paused:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-
-            start_screen()
-
     # 0: start screen
     # 1: game loop
     game_state = 0
@@ -318,12 +305,16 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     game_state = 1
+                    player.dead = False
+                    player.lives = 3
+                    rockets = 0
+                    rockets = pygame.sprite.Group()
 
         if game_state == 0:
             start_screen()
 
         if game_state == 1:
-            game_loop(hearts, rocket_current_time)
+            game_loop(hearts)
 
 
 if __name__ == '__main__':
