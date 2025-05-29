@@ -72,7 +72,6 @@ class Rocket(pygame.sprite.Sprite):
                 meteor.kill()
                 self.meteors_group.add(Meteor(mob_images))
                 # self.target.kill()
-                self.target.dead = True
                 self.target.lives = 0
                 # del self.target
 

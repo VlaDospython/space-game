@@ -186,7 +186,7 @@ def main():
 
         if player.dead and explosion_time is not None:
             play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
-            explosion_images1 = load_explosion_images(164, 164)
+            explosion_images1 = load_explosion_images(200, 200)
             explosion = Explosion(center=player.rect.center, explosion_images=explosion_images1)
             all_sprites.add(explosion)
             explosions.add(explosion)
