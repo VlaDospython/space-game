@@ -184,8 +184,8 @@ def main():
             player.dead = True
             explosion_time = pygame.time.get_ticks()
 
-        if player.dead and explosion_time is not None:
-            play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
+        if player.dead and explosion_time != 0:
+            play_sound(SHUTTLE_EXPLOSION_SOUND, 6, volume=0.2)
             explosion_images1 = load_explosion_images(164, 164)
             explosion = Explosion(center=player.rect.center, explosion_images=explosion_images1)
             all_sprites.add(explosion)
