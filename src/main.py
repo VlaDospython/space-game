@@ -106,6 +106,7 @@ def main():
     shake_duration = 0
     shake_intensity = 0
     shake_start_time = 0
+    explosion_time = 0
 
     c = Context()
     c.set_strategy(PhotoImage(player_image=ship))
@@ -147,6 +148,7 @@ def main():
     def game_loop(hearts):
         nonlocal game_state
         nonlocal rocket_current_time
+        nonlocal explosion_time
 
         keystate = pygame.key.get_pressed()
 
@@ -178,16 +180,22 @@ def main():
             play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
 
         # Перевірка кількості життів
-        if player.lives <= 0:
-            game_state = 0
-            # explosion_images1 = load_explosion_images(164, 164)
-            # explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images1)
-            # all_sprites.add(explosion)
-            # explosions.add(explosion)
-            # play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
-            pygame.time.wait(1000)
-            return
+        if player.lives <= 0 and not player.dead:
+            player.dead = True
+            explosion_time = pygame.time.get_ticks()
 
+        if player.dead and explosion_time is not None:
+            play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
+            explosion_images1 = load_explosion_images(164, 164)
+            explosion = Explosion(center=player.rect.center, explosion_images=explosion_images1)
+            all_sprites.add(explosion)
+            explosions.add(explosion)
+
+            if pygame.time.get_ticks() - explosion_time >= PAUSE_AFTER_DEATH:
+                print("Вибух")
+                game_state = 0
+                player.dead = False
+                return
 
         # Перевірка на зіткнення куль з метеоритами
         bullets_hits = pygame.sprite.groupcollide(groupa=meteors, groupb=bullets, dokilla=True, dokillb=True)
@@ -303,12 +311,23 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_RETURN and game_state == 0:
                     game_state = 1
                     player.dead = False
                     player.lives = 3
-                    rockets = 0
                     rockets = pygame.sprite.Group()
+                    bullets.empty()
+                    meteors.empty()
+                    big_meteors.empty()
+                    aidkits.empty()
+                    explosions.empty()
+                    all_sprites.empty()
+
+                    all_sprites.add(player)
+                    all_sprites.add(enemy)
+                    all_sprites.add(rockets)
+                    spawn_meteors()
+                    spawn_hearts()
 
         if game_state == 0:
             start_screen()

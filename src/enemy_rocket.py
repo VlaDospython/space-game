@@ -51,7 +51,7 @@ class Rocket(pygame.sprite.Sprite):
 
             self.rotate(dx, dy)
 
-            if pygame.math.Vector2(self.rect.center).distance_to(self.target.rect.center) < 30:
+            if pygame.math.Vector2(self.rect.center).distance_to(self.target.rect.center) < 40:
                 self.explode()
         else:
             self.kill()
