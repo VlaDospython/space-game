@@ -4,8 +4,12 @@ FPS = 30
 
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
+BLUE = (0, 110, 255)
+DARK_BLUE = (94, 2, 156)
+WHITE = (255, 255, 255)
 
 BG_IMG = "../res/images/bg/stars_space_galaxy_117958_800x600.jpg"
+START_SCREEN_BG_IMG = "../res/images/bg/start_screen_bg_800x600.jpg"
 METEOR_IMG = "../res/images/meteor_images/meteor_big_01.png"
 SCREEN_TITLE = 'My game'
 SHIP = "../res/images/stuff/ship2.png"
@@ -27,4 +31,4 @@ AIDKIT_IMG = "../res/images/stuff/aidkit.png"
 ENEMY_IMG = '../res/images/enemies/enemy_red.png'
 ENEMY_ROCKET_IMG = "../res/images/stuff/missile agm12c.png"
 EXPLOSION_FOLDER = '../res/images/animations/explosion_animation1'
-PAUSE_AFTER_DEATH = 1500
+PAUSE_AFTER_DEATH = 2500

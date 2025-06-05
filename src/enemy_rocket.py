@@ -51,7 +51,7 @@ class Rocket(pygame.sprite.Sprite):
 
             self.rotate(dx, dy)
 
-            if pygame.math.Vector2(self.rect.center).distance_to(self.target.rect.center) < 40:
+            if pygame.math.Vector2(self.rect.center).distance_to(self.target.rect.center) <= 60:
                 self.explode()
         else:
             self.kill()
@@ -71,9 +71,7 @@ class Rocket(pygame.sprite.Sprite):
             if dist < EXPLOSION_RADIUS:
                 meteor.kill()
                 self.meteors_group.add(Meteor(mob_images))
-                # self.target.kill()
                 self.target.lives = 0
-                # del self.target
 
         del self
 

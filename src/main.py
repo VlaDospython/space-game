@@ -16,6 +16,7 @@ from enemy import Enemy
 from explosion import Explosion
 from enemy_rocket import Rocket
 
+
 def main():
     def spawn_hearts():
         player_lives = player.lives
@@ -78,6 +79,13 @@ def main():
         for _ in range(random.randint(15, 30)):
             meteors.add(Meteor(mob_images))
 
+    def draw_text(surf, text, color, size, x, y):
+        font = pygame.font.Font(None, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (x, y)
+        surf.blit(text_surface, text_rect)
+
 
     # Game and display init
     pygame.init()
@@ -89,9 +97,11 @@ def main():
     bg_music = pygame.mixer.Sound(BG_MUSIC)
     bg_music.set_volume(0.1)
     bg_music.play()
+    channel_6 = pygame.mixer.Channel(6)
 
     # Images
     img = pygame.image.load(BG_IMG)
+    start_screen_img = pygame.image.load(START_SCREEN_BG_IMG)
     meteor = pygame.image.load(METEOR_IMG)
     ship = pygame.image.load(SHIP)
     heart_img = pygame.image.load(HEART)
@@ -185,8 +195,9 @@ def main():
             explosion_time = pygame.time.get_ticks()
 
         if player.dead and explosion_time is not None:
-            play_sound(SHUTTLE_EXPLOSION_SOUND, 5, volume=0.2)
-            explosion_images1 = load_explosion_images(200, 200)
+            if not channel_6.get_busy():
+                channel_6.play(pygame.mixer.Sound(SHUTTLE_EXPLOSION_SOUND))
+            explosion_images1 = load_explosion_images(164, 164)
             explosion = Explosion(center=player.rect.center, explosion_images=explosion_images1)
             all_sprites.add(explosion)
             explosions.add(explosion)
@@ -194,6 +205,7 @@ def main():
             if pygame.time.get_ticks() - explosion_time >= PAUSE_AFTER_DEATH:
                 print("Вибух")
                 game_state = 0
+                channel_6.stop()
                 player.dead = False
                 return
 
@@ -293,7 +305,8 @@ def main():
 
     def start_screen():
         # Рендеринг
-        screen.fill((0, 255, 0))  # Заливка екрану зеленим кольором
+        screen.blit(start_screen_img, (0, 0))
+        draw_text(screen, "Space Game", WHITE, 80, WIDTH/2, HEIGHT/2 - 150)
         pygame.display.flip()
 
     # 0: start screen
