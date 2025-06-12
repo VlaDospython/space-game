@@ -76,7 +76,7 @@ def main():
 
     def spawn_meteors():
         # Додавання метеоритів у групу
-        for _ in range(random.randint(15, 30)):
+        for _ in range(random.randint(10, 20)):
             meteors.add(Meteor(mob_images))
 
     def draw_text(surf, text, color, size, x, y):
@@ -197,11 +197,17 @@ def main():
         # Перевірка на зіткнення гравця з великими метеорами
         hits = pygame.sprite.spritecollide(player, big_meteors, True)
         if hits:
-            explosion_images1 = load_explosion_images(164, 164)
-            explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images1)
-            all_sprites.add(explosion)
-            explosions.add(explosion)
-            shuttle_explosion_channel.play(pygame.mixer.Sound(SHUTTLE_EXPLOSION_SOUND))
+            player.lives -= 3
+            all_sprites.remove(hearts)
+            hearts = []
+            spawn_hearts()
+            start_screen_shake(intensity=15, duration=700)
+            for hit in hits:
+                explosion_images1 = load_explosion_images(164, 164)
+                explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images1)
+                all_sprites.add(explosion)
+                explosions.add(explosion)
+                shuttle_explosion_channel.play(pygame.mixer.Sound(SHUTTLE_EXPLOSION_SOUND))
 
         # Перевірка кількості життів
         if player.lives <= 0 and not player.dead:
