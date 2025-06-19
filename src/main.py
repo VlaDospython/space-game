@@ -323,6 +323,7 @@ def main():
 
         # Рендеринг
         screen.fill((0, 0, 0))  # Заливка екрану чорним кольором
+        screen.blit(img, (0, 0))
         screen.blit(img, shake_offset)
         all_sprites.draw(screen)
         meteors.draw(screen)
