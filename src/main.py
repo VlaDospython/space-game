@@ -122,15 +122,17 @@ def main():
         player.speedx = 0
         player.speedy = 0
 
-    def first_level_load():
+    def reset_variables():
         nonlocal game_state
         nonlocal progress_complete
         nonlocal progress
-        game_state = 1
+        nonlocal shoot_delay
+
         player.dead = False
         progress_complete = False
         player.lives = 3
         progress = 0
+        shoot_delay = 115
 
         rockets = pygame.sprite.Group()
         bullets.empty()
@@ -142,57 +144,28 @@ def main():
 
         all_sprites.add(player)
         all_sprites.add(rockets)
-        spawn_meteors(1)
         spawn_hearts()
         reset_player_position()
+
+    def first_level_load():
+        nonlocal game_state
+
+        game_state = 1
+        spawn_meteors(1)
 
     def second_level_load():
         nonlocal game_state
-        nonlocal progress_complete
-        nonlocal progress
+
         game_state = 1
-        player.dead = False
-        progress_complete = False
-        player.lives = 3
-        progress = 0
-
-        rockets = pygame.sprite.Group()
-        bullets.empty()
-        meteors.empty()
-        big_meteors.empty()
-        aidkits.empty()
-        explosions.empty()
-        all_sprites.empty()
-
-        all_sprites.add(player)
-        all_sprites.add(rockets)
         spawn_meteors(2)
-        spawn_hearts()
-        reset_player_position()
 
     def third_level_load():
+        nonlocal shoot_delay
         nonlocal game_state
-        nonlocal progress_complete
-        nonlocal progress
+
         game_state = 1
-        player.dead = False
-        progress_complete = False
-        player.lives = 3
-        progress = 0
-
-        rockets = pygame.sprite.Group()
-        bullets.empty()
-        meteors.empty()
-        big_meteors.empty()
-        aidkits.empty()
-        explosions.empty()
-        all_sprites.empty()
-
-        all_sprites.add(player)
-        all_sprites.add(rockets)
+        shoot_delay -= 50
         spawn_meteors(3)
-        spawn_hearts()
-        reset_player_position()
 
     pygame.init()
 
@@ -231,6 +204,7 @@ def main():
     explosion_time = 0
     progress = 0
     jump_time = None
+    shoot_delay = 115
 
     progress_complete = False
     c = Context()
@@ -283,7 +257,7 @@ def main():
         keystate = pygame.key.get_pressed()
 
         if keystate[pygame.K_SPACE]:
-            if pygame.time.get_ticks() - current_time >= SHOOT_DELAY:
+            if pygame.time.get_ticks() - current_time >= shoot_delay:
                 shoot()
 
         # Перевірка на зіткнення гравця з метеорами
@@ -495,6 +469,7 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN and game_state == 0:
                     game_state = 2
+                    reset_variables()
                 if event.key == pygame.K_1 and game_state == 2:
                     first_level_load()
                 if event.key == pygame.K_2 and game_state == 2:

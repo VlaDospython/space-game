@@ -24,7 +24,6 @@ EXPLOSION_SOUND = "../res/sounds/explosion.mp3"
 BIG_EXPLOSION_SOUND = "../res/sounds/silnyiy-raskatistyiy-vzryiv.mp3"
 SHUTTLE_EXPLOSION_SOUND = "../res/sounds/shuttle_explosion_sound.mp3"
 AIDKIT_SOUND = "../res/sounds/aidkit_sound.mp3"
-SHOOT_DELAY = 115
 BIG_METEOR_SPAWN_DELAY = 10000
 AIDKIT_SPAWN_DELAY = 12000
 ROCKET_SPAWN_DELAY = 3000
