@@ -290,11 +290,6 @@ def main():
 
             enemy_spawn_current_time = pygame.time.get_ticks()
 
-        # Перевірка на зіткнення куль з аптечками
-        aidkit_bullet_hits = pygame.sprite.groupcollide(bullets, aidkits, dokilla=True, dokillb=True)
-        for hit in aidkit_bullet_hits:
-            explosion_channel.play(pygame.mixer.Sound(EXPLOSION_SOUND))
-
         if pygame.time.get_ticks() - big_meteor_current_time >= BIG_METEOR_SPAWN_DELAY:
             spawn_big_meteor()
 
