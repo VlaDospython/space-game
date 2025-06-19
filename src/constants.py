@@ -11,6 +11,7 @@ ORANGE = (255, 77, 0)
 
 BG_IMG = "../res/images/bg/stars_space_galaxy_117958_800x600.jpg"
 START_SCREEN_BG_IMG = "../res/images/bg/start_screen_bg_800x600.jpg"
+LEVEL_SCREEN_BG_IMG = "../res/images/bg/level_screen_bg_800x600.jpg"
 METEOR_IMG = "../res/images/meteor_images/meteor_big_01.png"
 SCREEN_TITLE = 'My game'
 SHIP = "../res/images/stuff/ship2.png"
@@ -31,7 +32,7 @@ EXPLOSION_RADIUS = 501
 PAUSE_AFTER_DEATH = 2500
 PAUSE_BEFORE_JUMP = 3000
 ENEMY_SPAWN_DELAY = 5000
-PROGRESS_SPEED = 1
+PROGRESS_SPEED = 0.1
 # PROGRESS = 0
 MAX_PROGRESS = 100
 AIDKIT_IMG = "../res/images/stuff/aidkit.png"

@@ -74,10 +74,17 @@ def main():
         else:
             shake_offset = [0, 0]
 
-    def spawn_meteors():
+    def spawn_meteors(difficulty: int):
         # Додавання метеоритів у групу
-        for _ in range(random.randint(10, 20)):
-            meteors.add(Meteor(mob_images))
+        if difficulty == 1:
+            for _ in range(random.randint(10, 20)):
+                meteors.add(Meteor(mob_images))
+        elif difficulty == 2:
+            for _ in range(random.randint(20, 40)):
+                meteors.add(Meteor(mob_images))
+        elif difficulty == 3:
+            for _ in range(random.randint(40, 60)):
+                meteors.add(Meteor(mob_images))
 
     def draw_text(surf, text, color, size, x, y):
         font = pygame.font.Font(None, size)
@@ -115,25 +122,98 @@ def main():
         player.speedx = 0
         player.speedy = 0
 
-    # Game and display init
+    def first_level_load():
+        nonlocal game_state
+        nonlocal progress_complete
+        nonlocal progress
+        game_state = 1
+        player.dead = False
+        progress_complete = False
+        player.lives = 3
+        progress = 0
+
+        rockets = pygame.sprite.Group()
+        bullets.empty()
+        meteors.empty()
+        big_meteors.empty()
+        aidkits.empty()
+        explosions.empty()
+        all_sprites.empty()
+
+        all_sprites.add(player)
+        all_sprites.add(rockets)
+        spawn_meteors(1)
+        spawn_hearts()
+        reset_player_position()
+
+    def second_level_load():
+        nonlocal game_state
+        nonlocal progress_complete
+        nonlocal progress
+        game_state = 1
+        player.dead = False
+        progress_complete = False
+        player.lives = 3
+        progress = 0
+
+        rockets = pygame.sprite.Group()
+        bullets.empty()
+        meteors.empty()
+        big_meteors.empty()
+        aidkits.empty()
+        explosions.empty()
+        all_sprites.empty()
+
+        all_sprites.add(player)
+        all_sprites.add(rockets)
+        spawn_meteors(2)
+        spawn_hearts()
+        reset_player_position()
+
+    def third_level_load():
+        nonlocal game_state
+        nonlocal progress_complete
+        nonlocal progress
+        game_state = 1
+        player.dead = False
+        progress_complete = False
+        player.lives = 3
+        progress = 0
+
+        rockets = pygame.sprite.Group()
+        bullets.empty()
+        meteors.empty()
+        big_meteors.empty()
+        aidkits.empty()
+        explosions.empty()
+        all_sprites.empty()
+
+        all_sprites.add(player)
+        all_sprites.add(rockets)
+        spawn_meteors(3)
+        spawn_hearts()
+        reset_player_position()
+
     pygame.init()
+
+    # Game and display init
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption(SCREEN_TITLE)
+    pygame.mixer.init()
 
     # Sounds
-    pygame.mixer.init()
     bullet_channel = pygame.mixer.Channel(1)
     explosion_channel = pygame.mixer.Channel(2)
     big_explosion_channel = pygame.mixer.Channel(3)
     aidkit_channel = pygame.mixer.Channel(4)
     background_channel = pygame.mixer.Channel(5)
     shuttle_explosion_channel = pygame.mixer.Channel(6)
-
     background_channel.play(pygame.mixer.Sound(BG_MUSIC))
 
     # Images
     img = pygame.image.load(BG_IMG)
     start_screen_img = pygame.image.load(START_SCREEN_BG_IMG)
+    level_screen_img = pygame.image.load(LEVEL_SCREEN_BG_IMG)
     meteor = pygame.image.load(METEOR_IMG)
     ship = pygame.image.load(SHIP)
     heart_img = pygame.image.load(HEART)
@@ -142,26 +222,26 @@ def main():
     enemy_rocket_img = pygame.image.load((ENEMY_ROCKET_IMG))
     explosion_images = load_explosion_images(90, 90)
     mob_images = [meteor]
-
     hearts = []
+
     shake_offset = [0, 0]
     shake_duration = 0
     shake_intensity = 0
     shake_start_time = 0
     explosion_time = 0
     progress = 0
-
     jump_time = None
-    progress_complete = False
 
+    progress_complete = False
     c = Context()
+
     c.set_strategy(PhotoImage(player_image=ship))
     b = Context()
     b.set_strategy(SimpleImage(size=(5, 10), color=RED))
     enemy_context = Context()
     enemy_context.set_strategy(PhotoImage(player_image=enemy_img))
-
     all_sprites = pygame.sprite.Group()
+
     meteors = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
     big_meteors = pygame.sprite.Group()
@@ -169,27 +249,26 @@ def main():
     explosions = pygame.sprite.Group()
     rockets = pygame.sprite.Group()
     enemies = pygame.sprite.Group()
-
     player = Player(context=c)
-    enemy = Enemy(context=enemy_context)
 
+    enemy = Enemy(context=enemy_context)
     all_sprites.add(player)
+
     all_sprites.add(hearts)
     all_sprites.add(rockets)
-
     process = psutil.Process(os.getpid())
+
     total_memory_mb = psutil.virtual_memory().total / (1024 * 1024)
 
-    spawn_meteors()
-
     current_time = pygame.time.get_ticks()
+
     big_meteor_current_time = pygame.time.get_ticks()
     aidkit_current_time = pygame.time.get_ticks()
     rocket_current_time = pygame.time.get_ticks()
     enemy_spawn_current_time = pygame.time.get_ticks()
+    running = True
 
     # Loop and FPS control
-    running = True
     clock = pygame.time.Clock()
 
     def game_loop(hearts):
@@ -375,22 +454,36 @@ def main():
         aidkits.draw(screen)
         explosions.draw(screen)
         rockets.draw(screen)
-        draw_progress_bar(screen, WIDTH/2+90, 7, 300, 25, progress, MAX_PROGRESS)
+        draw_progress_bar(screen, WIDTH / 2 + 90, 7, 300, 25, progress, MAX_PROGRESS)
 
     def start_screen():
         # Рендеринг
         screen.blit(start_screen_img, (0, 0))
-        draw_text(screen, "Space Game", WHITE, 80, WIDTH/2, HEIGHT/2 - 150)
-        draw_blinking_text(screen, "press <Enter> to start", WHITE, 35, WIDTH/2, HEIGHT - 80, 350)
+        draw_text(screen, "Space Game", WHITE, 80, WIDTH / 2, HEIGHT / 2 - 150)
+        draw_blinking_text(screen, "press <Enter> to choose level", WHITE, 35, WIDTH / 2, HEIGHT - 80, 350)
         pygame.display.flip()
+
+    def level_screen():
+        # Рендеринг
+        screen.blit(level_screen_img, (0, 0))
+        draw_text(screen, "Choose level:", WHITE, 65, WIDTH / 2 - 200, HEIGHT / 2 - 200)
+        draw_blinking_text(screen, "Press the key on the keyboard according to the level number to start", WHITE, 32,
+                           WIDTH / 2, HEIGHT - 80, 450)
+
+        draw_text(screen, "1. First level", WHITE, 55, WIDTH / 2 - 210, HEIGHT - 400)
+        draw_text(screen, "2. Second level", WHITE, 55, WIDTH / 2 - 182, HEIGHT - 300)
+        draw_text(screen, "3. Third level", WHITE, 55, WIDTH / 2 - 200, HEIGHT - 200)
+        pygame.display.flip()
+
+    game_state = 0
 
     # 0: start screen
     # 1: game loop
-    game_state = 0
+    # 2: level screen
 
     while running:
         clock.tick(FPS)
-        # print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
+        print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
         progress += PROGRESS_SPEED
 
         if process.memory_info().rss / 1024 / 1024 > 200:
@@ -401,31 +494,22 @@ def main():
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN and game_state == 0:
-                    game_state = 1
-                    player.dead = False
-                    progress_complete = False
-                    player.lives = 3
-                    progress = 0
-
-                    rockets = pygame.sprite.Group()
-                    bullets.empty()
-                    meteors.empty()
-                    big_meteors.empty()
-                    aidkits.empty()
-                    explosions.empty()
-                    all_sprites.empty()
-
-                    all_sprites.add(player)
-                    all_sprites.add(rockets)
-                    spawn_meteors()
-                    spawn_hearts()
-                    reset_player_position()
+                    game_state = 2
+                if event.key == pygame.K_1 and game_state == 2:
+                    first_level_load()
+                if event.key == pygame.K_2 and game_state == 2:
+                    second_level_load()
+                if event.key == pygame.K_3 and game_state == 2:
+                    third_level_load()
 
         if game_state == 0:
             start_screen()
 
         if game_state == 1:
             game_loop(hearts)
+
+        if game_state == 2:
+            level_screen()
 
 
 if __name__ == '__main__':
