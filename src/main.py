@@ -95,6 +95,26 @@ def main():
         if (time_now // interval_ms) % 2 == 0:
             draw_text(surf, text, color, size, x, y)
 
+    def draw_progress_bar(surf, x, y, width, height, progress, max_progress):
+        pygame.draw.rect(surf, (255, 255, 255), (x, y, width, height), 2)
+
+        fill_width = int((progress / max_progress) * width)
+        pygame.draw.rect(surf, (0, 200, 0), (x + 1, y + 1, fill_width - 2, height - 2))
+
+    def fly_player_up(player, speed):
+        if player.rect.bottom > 0:
+            player.rect.y -= speed
+
+    def fly_player_down(player, speed):
+        if player.rect.bottom > 0:
+            player.rect.y += speed
+
+    def reset_player_position():
+        player.rect.centerx = WIDTH // 2
+        player.rect.bottom = HEIGHT - 10
+        player.speedx = 0
+        player.speedy = 0
+
     # Game and display init
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -129,6 +149,10 @@ def main():
     shake_intensity = 0
     shake_start_time = 0
     explosion_time = 0
+    progress = 0
+
+    jump_time = None
+    progress_complete = False
 
     c = Context()
     c.set_strategy(PhotoImage(player_image=ship))
@@ -173,6 +197,9 @@ def main():
         nonlocal rocket_current_time
         nonlocal explosion_time
         nonlocal enemy_spawn_current_time
+        nonlocal progress_complete
+        nonlocal jump_time
+        nonlocal progress
 
         keystate = pygame.key.get_pressed()
 
@@ -223,6 +250,7 @@ def main():
             explosion = Explosion(center=player.rect.center, explosion_images=explosion_images1)
             all_sprites.add(explosion)
             explosions.add(explosion)
+            fly_player_down(player, speed=2)
 
             if pygame.time.get_ticks() - explosion_time >= PAUSE_AFTER_DEATH:
                 print("Вибух")
@@ -308,6 +336,21 @@ def main():
             enemy_spawn_current_time = pygame.time.get_ticks()
             rocket_current_time = pygame.time.get_ticks()
 
+        if progress >= MAX_PROGRESS and not progress_complete:
+            jump_time = pygame.time.get_ticks()
+            progress_complete = True
+
+        if progress_complete:
+            progress = 100
+            draw_blinking_text(screen, "CLEAR THE WAY", ORANGE, 65, WIDTH / 2, HEIGHT - 550, 150)
+
+            if pygame.time.get_ticks() - jump_time >= PAUSE_BEFORE_JUMP:
+                fly_player_up(player, speed=10)
+
+        if player.rect.bottom <= 0:
+            game_state = 0
+            return
+
         # Оновлення стану ігрових об'єктів
         bullets.update()
         meteors.update()
@@ -332,6 +375,7 @@ def main():
         aidkits.draw(screen)
         explosions.draw(screen)
         rockets.draw(screen)
+        draw_progress_bar(screen, WIDTH/2+90, 7, 300, 25, progress, MAX_PROGRESS)
 
     def start_screen():
         # Рендеринг
@@ -347,6 +391,7 @@ def main():
     while running:
         clock.tick(FPS)
         # print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
+        progress += PROGRESS_SPEED
 
         if process.memory_info().rss / 1024 / 1024 > 200:
             running = False
@@ -358,7 +403,10 @@ def main():
                 if event.key == pygame.K_RETURN and game_state == 0:
                     game_state = 1
                     player.dead = False
+                    progress_complete = False
                     player.lives = 3
+                    progress = 0
+
                     rockets = pygame.sprite.Group()
                     bullets.empty()
                     meteors.empty()
@@ -371,6 +419,7 @@ def main():
                     all_sprites.add(rockets)
                     spawn_meteors()
                     spawn_hearts()
+                    reset_player_position()
 
         if game_state == 0:
             start_screen()
