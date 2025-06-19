@@ -5,6 +5,8 @@ from enemy_rocket import Rocket
 
 
 class Enemy(pygame.sprite.Sprite):
+    max_lives = 3
+
     def __init__(self, context):
         super().__init__()
         self.image = context.get_surface()
@@ -13,8 +15,8 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.top = 0
         self.speedx = random.randint(-5, 5)
         self.speedy = random.randint(-1, 1)
-        self.lives = 3
-        self.dead = False
+        self.lives = self.max_lives
+        self.dead = True
 
     def update(self):
         self.rect.y += self.speedy

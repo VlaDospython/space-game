@@ -273,6 +273,7 @@ def main():
             all_sprites.add(explosion)
             explosions.add(explosion)
             enemy.lives -= 1
+            print(enemy.lives, "enemy")
             explosion_channel.play(pygame.mixer.Sound(EXPLOSION_SOUND))
 
         # Перевірка кількості життів ворога
@@ -282,9 +283,12 @@ def main():
             all_sprites.add(explosion)
             explosions.add(explosion)
             enemy.dead = True
+
             # TODO: delete enemy from memory after death
             all_sprites.remove(enemy)
             shuttle_explosion_channel.play(pygame.mixer.Sound(SHUTTLE_EXPLOSION_SOUND))
+
+            enemy_spawn_current_time = pygame.time.get_ticks()
 
         # Перевірка на зіткнення куль з аптечками
         aidkit_bullet_hits = pygame.sprite.groupcollide(bullets, aidkits, dokilla=True, dokillb=True)
@@ -301,9 +305,13 @@ def main():
             enemy.launch_rocket(player, rockets, explosion_images, meteors, enemy_rocket_img)
             rocket_current_time = pygame.time.get_ticks()
 
-        if pygame.time.get_ticks() - enemy_spawn_current_time >= ENEMY_SPAWN_DELAY:
+        # print(pygame.time.get_ticks(), enemy_spawn_current_time, pygame.time.get_ticks() - enemy_spawn_current_time)
+        if pygame.time.get_ticks() - enemy_spawn_current_time >= ENEMY_SPAWN_DELAY and enemy.dead:
             all_sprites.add(enemy)
+            enemy.lives = Enemy.max_lives
+            enemy.dead = False
             enemy_spawn_current_time = pygame.time.get_ticks()
+            rocket_current_time = pygame.time.get_ticks()
 
         # Оновлення стану ігрових об'єктів
         bullets.update()
