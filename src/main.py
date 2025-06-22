@@ -2,6 +2,9 @@ import pygame
 import random
 import psutil  # Використання пам’яті всього процесу
 import os
+import csv
+from datetime import datetime
+import getpass
 from src.constants import *
 from src.player import Player
 from src.bullet import Bullet
@@ -103,7 +106,7 @@ def main():
             draw_text(surf, text, color, size, x, y)
 
     def draw_progress_bar(surf, x, y, width, height, progress, max_progress):
-        pygame.draw.rect(surf, (255, 255, 255), (x, y, width, height), 2)
+        pygame.draw.rect(surf, BLACK, (x, y, width, height), 2)
 
         fill_width = int((progress / max_progress) * width)
         pygame.draw.rect(surf, (0, 200, 0), (x + 1, y + 1, fill_width - 2, height - 2))
@@ -128,13 +131,19 @@ def main():
         nonlocal progress
         nonlocal shoot_delay
         nonlocal score
+        nonlocal level_index
+        nonlocal score_saved
+        nonlocal progress_started
 
         player.dead = False
         progress_complete = False
+        score_saved = False
+        progress_started = False
         player.lives = 3
         progress = 0
         shoot_delay = 115
         score = 0
+        level_index = 0
 
         rockets = pygame.sprite.Group()
         bullets.empty()
@@ -151,23 +160,57 @@ def main():
 
     def first_level_load():
         nonlocal game_state
+        nonlocal level_index
+        nonlocal best_score
+        nonlocal progress_started
 
         game_state = 1
+        level_index = 1
+        best_score = load_max_score_for_level(level_index)
+        progress_started = True
         spawn_meteors(1)
 
     def second_level_load():
         nonlocal game_state
+        nonlocal level_index
+        nonlocal best_score
+        nonlocal progress_started
 
         game_state = 1
+        level_index = 2
+        best_score = load_max_score_for_level(level_index)
+        progress_started = True
         spawn_meteors(2)
 
     def third_level_load():
         nonlocal shoot_delay
         nonlocal game_state
+        nonlocal level_index
+        nonlocal best_score
+        nonlocal progress_started
 
         game_state = 1
         shoot_delay -= 40
+        level_index = 3
+        best_score = load_max_score_for_level(level_index)
+        progress_started = True
         spawn_meteors(3)
+
+    def save_score(level, score):
+        name = getpass.getuser()
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open("data/scores.csv", "a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([name, now, level, score])
+
+    def load_max_score_for_level(level):
+        try:
+            with open("data/scores.csv", "r") as f:
+                reader = csv.reader(f)
+                level_scores = [int(row[3]) for row in reader if int(row[2]) == level]
+                return max(level_scores) if level_scores else 0
+        except (FileNotFoundError, ValueError, IndexError):
+            return 0
 
     pygame.init()
 
@@ -205,11 +248,16 @@ def main():
     shake_start_time = 0
     explosion_time = 0
     progress = 0
-    jump_time = None
     shoot_delay = 115
     score = 0
+    level_index = 0
+    best_score = 0
 
     progress_complete = False
+    jump_time = None
+    score_saved = False
+    progress_started = False
+
     c = Context()
 
     c.set_strategy(PhotoImage(player_image=ship))
@@ -257,6 +305,10 @@ def main():
         nonlocal jump_time
         nonlocal progress
         nonlocal score
+        nonlocal level_index
+        nonlocal score_saved
+        nonlocal best_score
+        nonlocal progress_started
 
         keystate = pygame.key.get_pressed()
 
@@ -311,6 +363,11 @@ def main():
             all_sprites.add(explosion)
             explosions.add(explosion)
             fly_player_down(player, speed=2)
+
+            if not score_saved:
+                save_score(level_index, score)
+                best_score = load_max_score_for_level(level_index)
+                score_saved = True
 
             if pygame.time.get_ticks() - explosion_time >= PAUSE_AFTER_DEATH:
                 print("Вибух")
@@ -443,6 +500,7 @@ def main():
         rockets.draw(screen)
         draw_progress_bar(screen, WIDTH / 2 + 90, 7, 300, 25, progress, MAX_PROGRESS)
         draw_text(screen, f"Score: {score}", WHITE, 30, WIDTH-(WIDTH-80), 40)
+        draw_text(screen, f"Best: {best_score}", WHITE, 30, WIDTH-(WIDTH-80), 70)
 
     def start_screen():
         # Рендеринг
@@ -472,7 +530,8 @@ def main():
     while running:
         clock.tick(FPS)
         print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
-        progress += PROGRESS_SPEED
+        if progress_started:
+            progress += PROGRESS_SPEED
 
         if process.memory_info().rss / 1024 / 1024 > 300:
             running = False
