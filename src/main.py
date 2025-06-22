@@ -134,6 +134,7 @@ def main():
         nonlocal level_index
         nonlocal score_saved
         nonlocal progress_started
+        nonlocal progress_speed
 
         player.dead = False
         progress_complete = False
@@ -144,6 +145,7 @@ def main():
         shoot_delay = 115
         score = 0
         level_index = 0
+        progress_speed = 0.1
 
         rockets = pygame.sprite.Group()
         bullets.empty()
@@ -175,9 +177,11 @@ def main():
         nonlocal level_index
         nonlocal best_score
         nonlocal progress_started
+        nonlocal progress_speed
 
         game_state = 1
         level_index = 2
+        progress_speed = 0.05
         best_score = load_max_score_for_level(level_index)
         progress_started = True
         spawn_meteors(2)
@@ -252,6 +256,7 @@ def main():
     score = 0
     level_index = 0
     best_score = 0
+    progress_speed = 0.1
 
     progress_complete = False
     jump_time = None
@@ -531,7 +536,7 @@ def main():
         clock.tick(FPS)
         print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
         if progress_started:
-            progress += PROGRESS_SPEED
+            progress += progress_speed
 
         if process.memory_info().rss / 1024 / 1024 > 300:
             running = False
