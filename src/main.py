@@ -77,13 +77,13 @@ def main():
     def spawn_meteors(difficulty: int):
         # Додавання метеоритів у групу
         if difficulty == 1:
-            for _ in range(random.randint(10, 20)):
+            for _ in range(random.randint(5, 10)):
                 meteors.add(Meteor(mob_images))
         elif difficulty == 2:
-            for _ in range(random.randint(20, 40)):
+            for _ in range(random.randint(10, 20)):
                 meteors.add(Meteor(mob_images))
         elif difficulty == 3:
-            for _ in range(random.randint(40, 60)):
+            for _ in range(random.randint(20, 40)):
                 meteors.add(Meteor(mob_images))
 
     def draw_text(surf, text, color, size, x, y):
@@ -127,12 +127,14 @@ def main():
         nonlocal progress_complete
         nonlocal progress
         nonlocal shoot_delay
+        nonlocal score
 
         player.dead = False
         progress_complete = False
         player.lives = 3
         progress = 0
         shoot_delay = 115
+        score = 0
 
         rockets = pygame.sprite.Group()
         bullets.empty()
@@ -164,7 +166,7 @@ def main():
         nonlocal game_state
 
         game_state = 1
-        shoot_delay -= 50
+        shoot_delay -= 40
         spawn_meteors(3)
 
     pygame.init()
@@ -205,6 +207,7 @@ def main():
     progress = 0
     jump_time = None
     shoot_delay = 115
+    score = 0
 
     progress_complete = False
     c = Context()
@@ -253,6 +256,7 @@ def main():
         nonlocal progress_complete
         nonlocal jump_time
         nonlocal progress
+        nonlocal score
 
         keystate = pygame.key.get_pressed()
 
@@ -264,6 +268,7 @@ def main():
         hits = pygame.sprite.spritecollide(player, meteors, True)
         if hits:
             player.lives -= 1
+            score -= 20
             all_sprites.remove(hearts)
             hearts = []
             spawn_hearts()
@@ -278,6 +283,7 @@ def main():
         hits = pygame.sprite.spritecollide(player, big_meteors, True)
         if hits:
             player.lives -= 3
+            score -= 50
             all_sprites.remove(hearts)
             hearts = []
             spawn_hearts()
@@ -292,6 +298,7 @@ def main():
         # Перевірка кількості життів
         if player.lives <= 0 and not player.dead:
             player.dead = True
+            score -= 50
             explosion_time = pygame.time.get_ticks()
 
         if player.dead and explosion_time is not None:
@@ -314,12 +321,14 @@ def main():
 
         # Перевірка на зіткнення куль з метеоритами
         bullets_hits = pygame.sprite.groupcollide(groupa=meteors, groupb=bullets, dokilla=True, dokillb=True)
-        for hit in bullets_hits:
-            explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images)
-            all_sprites.add(explosion)
-            explosions.add(explosion)
-            meteors.add(Meteor(mob_images))
-            explosion_channel.play(pygame.mixer.Sound(EXPLOSION_SOUND))
+        if bullets_hits:
+            score += 10
+            for hit in bullets_hits:
+                explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images)
+                all_sprites.add(explosion)
+                explosions.add(explosion)
+                meteors.add(Meteor(mob_images))
+                explosion_channel.play(pygame.mixer.Sound(EXPLOSION_SOUND))
 
         # Перевірка на зіткнення куль з великими метеорами
         big_bullets_hits = pygame.sprite.groupcollide(groupa=big_meteors, groupb=bullets, dokilla=False, dokillb=True)
@@ -336,12 +345,14 @@ def main():
                 explosion = Explosion(center=hit.rect.center, explosion_images=explosion_images_)
                 all_sprites.add(explosion)
                 explosions.add(explosion)
-                big_explosion_channel.play(pygame.mixer.Sound(BIG_EXPLOSION_SOUND))
+                score += 50
+            big_explosion_channel.play(pygame.mixer.Sound(BIG_EXPLOSION_SOUND))
 
         # Перевірка на зіткнення гравця з аптечками
         aidkit_hits = pygame.sprite.spritecollide(player, aidkits, True)
         for hit in aidkit_hits:
             player.lives += 1
+            score += 10
             all_sprites.remove(hearts)
             hearts = []
             spawn_hearts()
@@ -364,6 +375,7 @@ def main():
             all_sprites.add(explosion)
             explosions.add(explosion)
             enemy.dead = True
+            score += 100
 
             # TODO: delete enemy from memory after death
             all_sprites.remove(enemy)
@@ -392,6 +404,7 @@ def main():
         if progress >= MAX_PROGRESS and not progress_complete:
             jump_time = pygame.time.get_ticks()
             progress_complete = True
+            score += 100
 
         if progress_complete:
             progress = 100
@@ -429,6 +442,7 @@ def main():
         explosions.draw(screen)
         rockets.draw(screen)
         draw_progress_bar(screen, WIDTH / 2 + 90, 7, 300, 25, progress, MAX_PROGRESS)
+        draw_text(screen, f"Score: {score}", WHITE, 30, WIDTH-(WIDTH-80), 40)
 
     def start_screen():
         # Рендеринг
@@ -442,7 +456,7 @@ def main():
         screen.blit(level_screen_img, (0, 0))
         draw_text(screen, "Choose level:", WHITE, 65, WIDTH / 2 - 200, HEIGHT / 2 - 200)
         draw_blinking_text(screen, "Press the key on the keyboard according to the level number to start", WHITE, 32,
-                           WIDTH / 2, HEIGHT - 80, 450)
+                           WIDTH / 2, HEIGHT - 80, 750)
 
         draw_text(screen, "1. First level", WHITE, 55, WIDTH / 2 - 210, HEIGHT - 400)
         draw_text(screen, "2. Second level", WHITE, 55, WIDTH / 2 - 182, HEIGHT - 300)
@@ -460,7 +474,7 @@ def main():
         print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
         progress += PROGRESS_SPEED
 
-        if process.memory_info().rss / 1024 / 1024 > 200:
+        if process.memory_info().rss / 1024 / 1024 > 300:
             running = False
 
         for event in pygame.event.get():

@@ -71,7 +71,7 @@ class Rocket(pygame.sprite.Sprite):
             if dist < EXPLOSION_RADIUS:
                 meteor.kill()
                 self.meteors_group.add(Meteor(mob_images))
-                self.target.lives = 0
+                self.target.lives -= 5
 
         del self
 
