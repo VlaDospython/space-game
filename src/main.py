@@ -3,8 +3,6 @@ import random
 import psutil  # Використання пам’яті всього процесу
 import os
 import csv
-from datetime import datetime
-import getpass
 from src.constants import *
 from src.player import Player
 from src.bullet import Bullet
@@ -17,7 +15,8 @@ from src.image_strategy.context import Context
 from medicine import AidKit
 from enemy import Enemy
 from explosion import Explosion
-from enemy_rocket import Rocket
+from storage_strategy import *
+# from enemy_rocket import Rocket
 
 
 def main():
@@ -165,10 +164,12 @@ def main():
         nonlocal level_index
         nonlocal best_score
         nonlocal progress_started
+        nonlocal data_context
 
         game_state = 1
         level_index = 1
-        best_score = load_max_score_for_level(level_index)
+
+        best_score = data_context.load_data(level_index)
         progress_started = True
         spawn_meteors(1)
 
@@ -178,11 +179,12 @@ def main():
         nonlocal best_score
         nonlocal progress_started
         nonlocal progress_speed
+        nonlocal data_context
 
         game_state = 1
         level_index = 2
         progress_speed = 0.05
-        best_score = load_max_score_for_level(level_index)
+        best_score = data_context.load_data(level_index)
         progress_started = True
         spawn_meteors(2)
 
@@ -192,29 +194,14 @@ def main():
         nonlocal level_index
         nonlocal best_score
         nonlocal progress_started
+        nonlocal data_context
 
         game_state = 1
         shoot_delay -= 40
         level_index = 3
-        best_score = load_max_score_for_level(level_index)
+        best_score = data_context.load_data(level_index)
         progress_started = True
         spawn_meteors(3)
-
-    def save_score(level, score):
-        name = getpass.getuser()
-        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open("data/scores.csv", "a", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow([name, now, level, score])
-
-    def load_max_score_for_level(level):
-        try:
-            with open("data/scores.csv", "r") as f:
-                reader = csv.reader(f)
-                level_scores = [int(row[3]) for row in reader if int(row[2]) == level]
-                return max(level_scores) if level_scores else 0
-        except (FileNotFoundError, ValueError, IndexError):
-            return 0
 
     pygame.init()
 
@@ -270,8 +257,9 @@ def main():
     b.set_strategy(SimpleImage(size=(5, 10), color=RED))
     enemy_context = Context()
     enemy_context.set_strategy(PhotoImage(player_image=enemy_img))
-    all_sprites = pygame.sprite.Group()
+    data_context = DataContext(CsvStorage())
 
+    all_sprites = pygame.sprite.Group()
     meteors = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
     big_meteors = pygame.sprite.Group()
@@ -314,6 +302,7 @@ def main():
         nonlocal score_saved
         nonlocal best_score
         nonlocal progress_started
+        nonlocal data_context
 
         keystate = pygame.key.get_pressed()
 
@@ -370,8 +359,9 @@ def main():
             fly_player_down(player, speed=2)
 
             if not score_saved:
-                save_score(level_index, score)
-                best_score = load_max_score_for_level(level_index)
+                data_context.save_data(level_index, score)
+
+                best_score = data_context.load_data(level_index)
                 score_saved = True
 
             if pygame.time.get_ticks() - explosion_time >= PAUSE_AFTER_DEATH:
@@ -504,8 +494,8 @@ def main():
         explosions.draw(screen)
         rockets.draw(screen)
         draw_progress_bar(screen, WIDTH / 2 + 90, 7, 300, 25, progress, MAX_PROGRESS)
-        draw_text(screen, f"Score: {score}", WHITE, 30, WIDTH-(WIDTH-80), 40)
-        draw_text(screen, f"Best: {best_score}", WHITE, 30, WIDTH-(WIDTH-80), 70)
+        draw_text(screen, f"Score: {score}", WHITE, 30, WIDTH - (WIDTH - 80), 40)
+        draw_text(screen, f"Best: {best_score}", WHITE, 30, WIDTH - (WIDTH - 80), 70)
 
     def start_screen():
         # Рендеринг
