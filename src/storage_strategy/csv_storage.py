@@ -17,6 +17,7 @@ class CsvStorage(StorageStrategy):
             with open(SCORES_FILENAME, "r") as f:
                 reader = csv.reader(f)
                 level_scores = [int(row[3]) for row in reader if int(row[2]) == level]
-                return max(level_scores) if level_scores else 0
+                max_score = max(level_scores)
+                return max_score if level_scores else 0
         except (FileNotFoundError, ValueError, IndexError):
             return 0

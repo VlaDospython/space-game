@@ -8,5 +8,5 @@ class DataContext:
         self.strategy.save(level, score)
 
     def load_data(self, level):
-        self.strategy.load(level)
+        return self.strategy.load(level)
 
