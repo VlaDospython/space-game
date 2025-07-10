@@ -18,6 +18,12 @@ from explosion import Explosion
 from storage_strategy import *
 # from enemy_rocket import Rocket
 
+class StorageStrategyFactory:
+    def get_strategy(self, type):
+        if type == 'database':
+            return DbStorage()
+        if type == 'csv':
+            return CsvStorage()
 
 def main():
     def spawn_hearts():
@@ -257,7 +263,7 @@ def main():
     b.set_strategy(SimpleImage(size=(5, 10), color=RED))
     enemy_context = Context()
     enemy_context.set_strategy(PhotoImage(player_image=enemy_img))
-    data_context = DataContext(CsvStorage())
+    data_context = DataContext(StorageStrategyFactory().get_strategy(STORAGE))
 
     all_sprites = pygame.sprite.Group()
     meteors = pygame.sprite.Group()
