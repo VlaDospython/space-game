@@ -18,12 +18,14 @@ from explosion import Explosion
 from storage_strategy import *
 # from enemy_rocket import Rocket
 
+
 class StorageStrategyFactory:
     def get_strategy(self, type):
         if type == 'database':
             return DbStorage()
         if type == 'csv':
             return CsvStorage()
+
 
 def main():
     def spawn_hearts():
@@ -131,15 +133,9 @@ def main():
         player.speedy = 0
 
     def reset_variables():
-        nonlocal game_state
-        nonlocal progress_complete
-        nonlocal progress
-        nonlocal shoot_delay
-        nonlocal score
-        nonlocal level_index
-        nonlocal score_saved
-        nonlocal progress_started
-        nonlocal progress_speed
+        nonlocal progress_complete, progress, shoot_delay, score
+        nonlocal level_index, score_saved, progress_started, progress_speed
+        nonlocal big_meteor_current_time, enemy_spawn_current_time, aidkit_current_time, rocket_current_time
 
         player.dead = False
         progress_complete = False
@@ -152,15 +148,26 @@ def main():
         level_index = 0
         progress_speed = 0.1
 
-        rockets = pygame.sprite.Group()
+        big_meteor_current_time = pygame.time.get_ticks()
+        enemy_spawn_current_time = pygame.time.get_ticks()
+        aidkit_current_time = pygame.time.get_ticks()
+        rocket_current_time = pygame.time.get_ticks()
+
+        # Очищення груп
+        rockets.empty()
         bullets.empty()
         meteors.empty()
         big_meteors.empty()
         aidkits.empty()
         explosions.empty()
+        enemies.empty()
         all_sprites.empty()
 
+        enemy.lives = Enemy.max_lives
+        enemy.dead = False
+
         all_sprites.add(player)
+        all_sprites.add(enemy)
         all_sprites.add(rockets)
         spawn_hearts()
         reset_player_position()
@@ -530,7 +537,7 @@ def main():
 
     while running:
         clock.tick(FPS)
-        print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
+        # print(f"Використано пам'яті: {process.memory_info().rss / 1024 / 1024:.2f}/{total_memory_mb:.2f} MB")
         if progress_started:
             progress += progress_speed
 
@@ -544,6 +551,7 @@ def main():
                 if event.key == pygame.K_RETURN and game_state == 0:
                     game_state = 2
                     reset_variables()
+                    print("reset")
                 if event.key == pygame.K_1 and game_state == 2:
                     first_level_load()
                 if event.key == pygame.K_2 and game_state == 2:
