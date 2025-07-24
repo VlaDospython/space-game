@@ -4,6 +4,7 @@ import getpass
 import csv
 from src.constants import *
 
+
 class CsvStorage(StorageStrategy):
     def save(self, level, score):
         name = getpass.getuser()

@@ -1,5 +1,6 @@
 from .storage_strategy import StorageStrategy
 
+
 class DataContext:
     def __init__(self, strategy: StorageStrategy):
         self.strategy = strategy
