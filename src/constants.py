@@ -14,6 +14,7 @@ START_SCREEN_BG_IMG = "../res/images/bg/start_screen_bg_800x600.jpg"
 LEVEL_SCREEN_BG_IMG = "../res/images/bg/level_screen_bg_800x600.jpg"
 METEOR_IMG = "../res/images/meteor_images/meteor_big_01.png"
 SCORES_FILENAME = "data/scores.csv"
+SCORES_DB_FILENAME = "data/scores.db"
 SCREEN_TITLE = 'My game'
 SHIP = "../res/images/stuff/ship2.png"
 HEART = "../res/images/stuff/heart.png"
