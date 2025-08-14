@@ -10,4 +10,4 @@ class StorageStrategyFactory:
         if type == 'csv':
             return CsvStorage()
         if type == 'redis':
-            return RedisStorage
+            return RedisStorage()

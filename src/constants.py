@@ -33,12 +33,10 @@ EXPLOSION_RADIUS = 501
 PAUSE_AFTER_DEATH = 2500
 PAUSE_BEFORE_JUMP = 3000
 ENEMY_SPAWN_DELAY = 5000
-# PROGRESS_SPEED = 0.1
-# PROGRESS = 0
 MAX_PROGRESS = 100
 AIDKIT_IMG = "../res/images/stuff/aidkit.png"
 ENEMY_IMG = '../res/images/enemies/enemy_red.png'
 ENEMY_ROCKET_IMG = "../res/images/stuff/missile agm12c.png"
 EXPLOSION_FOLDER = '../res/images/animations/explosion_animation1'
 
-STORAGE = "redis"
+STORAGE = 'redis'       # csv/database/redis

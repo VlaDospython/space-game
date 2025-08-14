@@ -17,14 +17,7 @@ from enemy import Enemy
 from explosion import Explosion
 from storage_strategy import *
 # from enemy_rocket import Rocket
-
-
-class StorageStrategyFactory:
-    def get_strategy(self, type):
-        if type == 'database':
-            return DbStorage()
-        if type == 'csv':
-            return CsvStorage()
+from src.storage_strategy.factory import StorageStrategyFactory
 
 
 def main():
