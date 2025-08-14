@@ -41,4 +41,4 @@ ENEMY_IMG = '../res/images/enemies/enemy_red.png'
 ENEMY_ROCKET_IMG = "../res/images/stuff/missile agm12c.png"
 EXPLOSION_FOLDER = '../res/images/animations/explosion_animation1'
 
-STORAGE = "database"
+STORAGE = "redis"
