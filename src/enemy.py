@@ -1,9 +1,12 @@
 import pygame
 from src.constants import *
 import random
+from enemy_rocket import Rocket
 
 
 class Enemy(pygame.sprite.Sprite):
+    max_lives = 3
+
     def __init__(self, context):
         super().__init__()
         self.image = context.get_surface()
@@ -12,8 +15,8 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.top = 0
         self.speedx = random.randint(-5, 5)
         self.speedy = random.randint(-1, 1)
-        self.lives = 3
-        self.dead = False
+        self.lives = self.max_lives
+        self.dead = True
 
     def update(self):
         self.rect.y += self.speedy
@@ -30,12 +33,11 @@ class Enemy(pygame.sprite.Sprite):
         elif self.rect.y >= 50:
             self.speedy = -1
 
-    def shoot(self, target, group):
-        now = pygame.time.get_ticks()
-        if now - self.last_shot >= self.shoot_delay:
-            self.last_shot = now
-            bullet = EnemyBullet(self.rect.centerx, self.rect.bottom, target.rect)
-            group.add(bullet)
+    def launch_rocket(self, target, rocket_group, explosion_images, meteors_group, rocket_img):
+        if not self.dead:
+            rocket = Rocket(self.rect.centerx, self.rect.bottom, target, explosion_images, meteors_group, rocket_img)
+            rocket_group.add(rocket)
+
 
 
 

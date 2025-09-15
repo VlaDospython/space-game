@@ -12,6 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.speedx = 0
         self.speedy = 0
         self.lives = 3
+        self.dead = False
 
     def update(self):
         self.speedx = 0
